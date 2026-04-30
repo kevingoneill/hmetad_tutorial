@@ -1,0 +1,43 @@
+project:
+  type: manuscript
+  render:
+    - index.qmd
+  preview: 
+    port: 8000
+
+manuscript:
+  article: index.qmd
+
+format:
+  apaquarto-pdf:
+    documentmode: doc
+#    mainfont: "Arial"    # can also use "UCL Sans" 
+    fontsize: 10pt
+    keep-tex: false
+    draftfirst: true
+    fig-format: pdf
+    fig-width: 10
+    fig-height: 4
+    fig-dpi: 600
+
+include-in-header: preamble.tex
+
+execute:
+  freeze: false
+  cache: true
+  warning: false
+  message: false
+  error: false
+
+word-count: true
+floatsintext: true
+numbered-lines: false
+mask: false
+no-ampersand-parenthetical: false
+meta-analysis: true
+lang: en
+bibliography: references.bib
+
+# number-sections: true  ## use for section numbering
+
+

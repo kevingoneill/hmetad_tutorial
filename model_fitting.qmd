@@ -1,0 +1,754 @@
+
+Here, we reanalyze data from @lund2025 as a practical demonstration of how to use the `hmetad` package to fit the $\meta{d'}$ model in R. In this experiment, participants were asked to complete four different tasks with confidence ratings (@fig-task).
+
+![Design of @lund2025. (A) Two hypotheses concerning the domain-generality of metacognition. Under full domain generality, metacognitive efficiency should correlate across tasks. (B) Four tasks used to measure metacognitive performance across domains. After making a decision on the primary visual, memory, or trivia two alternative forced choice task, participants were asked to rate their confidence on a scale from 1--7.](https://github.com/embodied-computation-group/dg-metacognition/blob/main/figs/fig1_final.png?raw=true){#fig-task fig-align="center" width="50%"}
+
+## Setup
+
+### Installation
+
+To install the latest release of the `hmetad` package from CRAN, one can use the command `install.packages("hmetad")`. Alternatively, the development version of `hmetad` can be installed using `devtools::install_github("metacoglab/hmetad")`.
+
+The `hmetad` package depends on the `brms` package, which in turn uses either the `Rstan` or `cmdstanr` interface to the probabilistic programming language Stan. Installing `hmetad` will install `Rstan` automatically, however it is also recommended to install the `cmdstanr` package, since it produces more optimized code for most applications. In either case, both interfaces requires a working C++ compiler specific to your computer's operating system. For detailed information on installation, please see <https://mc-stan.org/install/>.
+
+Once installed, the `hmetad` package can be loaded using the command `library(hmetad)`.
+
+```{r install}
+#| output: false
+#| cache: false
+
+if (system.file(package='hmetad') == "") {
+  pak::pak("metacoglab/hmetad")
+}
+
+library(tidyverse)
+library(tidybayes)
+library(ggdist)
+library(patchwork)
+library(hmetad)
+
+url <- "https://raw.githubusercontent.com/embodied-computation-group/dg-metacognition/refs/heads/main/data_summary/metacognition_TrialData_master.csv"
+
+theme_metad <- function(base_size=18, ...) {
+  list(theme_classic(base_size, ...))
+}
+```
+
+### Data preparation
+
+Most experimental software is designed to save trial-level tabular data, with one row for each individual trial and columns for each independent or dependent variable. After loading the data into R, we rename some columns in the data, ensure that the `participant` and `task` columns are stored as factors, filter out trials with implausibly fast or slow reaction times [as in @lund2025], and select only the relevant columns.
+
+```{r data}
+#| echo: true
+d <- read_csv(url) |>
+  rename(participant = subject, task = modality, stimulus = signal) |>
+  mutate(
+    participant = factor(participant),
+    task = factor(tolower(task)),
+    across(trial:confidence, as.integer)
+  ) |>
+  filter(between(rt, 0.05, 10.0)) |>
+  drop_na() |>
+  select(participant, task, trial, stimulus, response, confidence)
+d
+```
+
+```{r}
+d.exclude <- d |> 
+  group_by(participant, task, stimulus) |> 
+  summarize(p=mean(response==1)) |>
+  pivot_wider(names_from=stimulus, values_from=p, names_prefix='p_') |>
+  mutate(dprime=qnorm(p_1) - qnorm(p_0),
+         c=-.5*(qnorm(p_1) + qnorm(p_0))) |>
+  filter(dprime < 0 | dprime > 3 | abs(c) > .75) |>
+  mutate(ID=paste0(participant, '.', task))
+
+# filter out sessions with < 95% error rate per stimulus
+d <- d |>
+  filter_out(paste0(participant, '.', task) %in% d.exclude$ID)
+```
+
+As we can see, this is quite a large data set with `{r} nrow(d)` observations. As described above, to increase the efficiency of model fitting, the `hmetad` fits the $\meta{d'}$ model on aggregated data rather than the trial-level data. In practice, since the `hmetad` automatically generates this aggregated data set internally based on the provided model formula, users are not required to aggregate their own data. Nevertheless, if we would like, we can manually aggregate the data using the function `aggregate_metad(d, ...)`, where `...` are grouping columns. Since we would like estimates of metacognitive performance for each combination of participant and task, we can aggregate the data like so:
+
+```{r data_aggregation}
+#| echo: true
+aggregate_metad(d, participant, task)
+```
+
+Instead of one row per trial, this aggregated data set has only `{r} nrow(aggregate_metad(d, participant, task))` rows (one row per participant and per task). Here, the `N_0` and `N_1` columns represent the number of trials where `stimulus==0` and `stimulus==1`, respectively, and the `N` column is a matrix containing the joint distribution of stimuli, type 1 responses, and type 2 responses. For convenience, its sub-columns are named with the pattern `N_<stimulus>_<joint_response>`, such that `N_0_1` contains the number of trials with `stimulus==0` and `joint_response==1` (i.e., `response==0` and `confidence==7`) and `N_1_8` contains the number of trials with `stimulus==1` and `joint_response==8` (i.e., `response==1` and `confidence==1`).
+
+
+## Model specification
+
+Given a data set, the next step is to specify a model that properly accounts for the nested structure of the data. Here we focus on specifying a model for the data collected by @lund2025 as an example. A full characterization of available model designs is outside the scope of this article, however we refer readers to [@buerkner2018; @singmann2019] for more information.
+
+As can be seen from the aggregated data, @lund2025 used a within-participant design with many trials per participant per task. To account for this structure, we will want a model that hierarchically estimates separate parameters for each participant and task. In the `hmetad` package, we can specify this structure as an R formula as used in the `lme4` and `brms` packages.
+
+First, to determine which parameters our model has, it is helpful to create the distribution family for our data:
+
+```{r metad_family}
+#| echo: true
+metad(n_distinct(d$confidence))
+```
+
+This output tells us a few key pieces of information. Looking at the name of the model family, we see that our model has `{r} n_distinct(d$confidence)` confidence levels and uses the normal distribution for the signal detection model, the [absolute]{.smallcaps} variant of the $\meta{d'}$ model, and the multinomial likelihood (over aggregated data). This output also lists the model parameters over which we can specify `brms` formulas. The primary model parameter is the $M$-ratio, which for technical reasons, `brms` requires to be called `mu`. As the model uses the `log` link function, $M$-ratio is estimated on the logarithmic scale. `dprime` and `c` are the type 1 sensitivity and response criterion. Finally, we have a long list of parameters which define the type 2 criteria. These parameters are named using the syntax `metac2<response><confidence>diff`, where `<response>` is either `zero` or `one` and `<confidence>` is any integer from `1` to `6` (one less than the total number of confidence levels).
+
+Now that we know the names of all of the parameters for our model, we can specify a model formula using the function `bf` from the `brms` package:
+```{r}
+#| echo: true
+#| eval: false
+formula <- bf(
+    N ~ 0 + task + (0 + task | participant),
+    dprime ~ 0 + task + (0 + task || participant),
+    c ~ 0 + task + (0 + task || participant),
+    metac2zero1diff ~ 0 + task + (0 + task || participant),
+    metac2zero2diff ~ 0 + task + (0 + task || participant),
+    metac2zero3diff ~ 0 + task + (0 + task || participant),
+    metac2zero4diff ~ 0 + task + (0 + task || participant),
+    metac2zero5diff ~ 0 + task + (0 + task || participant),
+    metac2zero6diff ~ 0 + task + (0 + task || participant),
+    metac2one1diff ~ 0 + task + (0 + task || participant),
+    metac2one2diff ~ 0 + task + (0 + task || participant),
+    metac2one3diff ~ 0 + task + (0 + task || participant),
+    metac2one4diff ~ 0 + task + (0 + task || participant),
+    metac2one5diff ~ 0 + task + (0 + task || participant),
+    metac2one6diff ~ 0 + task + (0 + task || participant)
+  )
+```
+
+This formula has a few notable features. First, for the specification of the formula for the $M$-ratio, we use `N` (which is the name of the column of aggregated responses from `aggregate_metad`). Second, for each parameter we include `task` as a predictor in the model using the syntax `0 + task`. In R, this syntax codes the `task` variable such that each model coefficient simply corresponds to the parameter estimate for one particular task. If we had just used `task` (removing `0 +`), by default the the `task` variable will be dummy-coded so that the Intercept represents the parameter estimates for a reference task and the coefficients represent deviations in parameter values between tasks. For this particular design, using the former variation allows us to more easily set priors and interpret model coefficients. Third, for the $M$-ratio we include hierarchical estimates of all coefficients for each participant with the syntax `(0 + task | participant)`. Finally, we also include participant-level estimates for all other parameters, except that we use the syntax `(0 + task || participant)` to omit correlations in participant-level effects for these parameters. In principle, it is best to include random effect correlations, however they can sometimes cause problems with model convergence, in which case they can be removed from the model [@singmann2019].
+
+Since we are using the same design for most model parameters, the formula above has a lot of repeated code. To make the code more readable, then, we can specify formulas for multiple model parameters at the same time (except for $M$-ratio, which requires its own formula):
+```{r}
+#| echo: true
+formula <- bf(
+    N ~ 0 + task + (0 + task | participant),
+    dprime+c ~ 0 + task + (0 + task || participant),
+    metac2zero1diff + metac2zero2diff + metac2zero3diff +
+    metac2zero4diff + metac2zero5diff + metac2zero6diff +
+    metac2one1diff + metac2one2diff + metac2one3diff +
+    metac2one4diff + metac2one5diff + metac2one6diff ~
+      0 + task + (0 + task | participant)
+  )
+```
+
+
+## Prior predictive checks
+
+Before fitting the $\meta{d'}$ model, it is necessary to specify priors over model parameters using multiple calls to the `set_prior` function (or one of its variants) from the `brms` package. Because prior specification is a somewhat subjective process, we recommend the use of prior predictive checks as a standard part of the Bayesian workflow [@schad2021].
+
+Here we chose to use normal priors over the model coefficients and an LKJ prior over correlations between participant-level $M$-ratios:
+
+```{r set_prior}
+#| echo: true
+dpar_metac2 <- c(
+  "metac2zero1diff", "metac2zero2diff",
+  "metac2zero3diff", "metac2zero4diff",
+  "metac2zero5diff", "metac2zero6diff",
+  "metac2one1diff", "metac2one2diff",
+  "metac2one3diff", "metac2one4diff",
+  "metac2one5diff", "metac2one6diff"
+)
+
+prior <- set_prior("normal(0, .25)") +
+  set_prior("normal(1, .5)", dpar = "dprime") +
+  set_prior("normal(0, .25)", dpar = "c") +
+  set_prior("normal(-1, 1)", dpar = dpar_metac2) +
+  set_prior("normal(0, .5)", class="sd") +
+  set_prior("normal(0, .5)", class="sd", dpar = c("dprime", "c")) +
+  set_prior("normal(0, 2)", class="sd", dpar = dpar_metac2) +
+  set_prior("lkj(2)", class="cor")
+```
+
+
+To check the implications of this prior distribution, we can fit the model by calling the function `fit_metad` with the argument `sample_prior = "only"`:
+```{r prior}
+#| echo: true
+m.prior <- fit_metad(formula, d,
+  #file = "prior.rds", 
+  prior = prior,
+  cores = 4, init = 0, backend = "cmdstanr", sample_prior = "only"
+)
+```
+
+Here we have chosen to use the `cmdstanr` backend to `brms` for efficiency, to save our prior model into a file called `prior.rds`, to run Stan in parallel across four cores, and to initialize all parameters to zero. 
+
+Like any other `brms` object, we can view helpful summaries of our model using the `summary` and `plot` functions. Since this model has a large number of parameters, however, it is easier to check the implications of this prior distribution by plotting out distributions of model parameters and other implied quantities. 
+
+The `hmetad` package has a range of functions for extracting such model quantities, all of which contain either `_draws` or `_rvars` following conventions from the `tidybayes` package. Each of these functions takes as input a `brms` model and a new dataset from which to compute predictions. To check our priors for the group-level parameters, we can first plot the distributions of model parameters themselves using the function `linpred_rvars_metad` over a sample dataset containing just one task:
+```{r}
+#| echo: true
+newdata <- tibble(task = "memory")
+
+linpred_rvars_metad(m.prior, newdata, re_formula=NA, pivot_longer=TRUE)
+```
+
+```{r}
+prior.linpred <- linpred_rvars_metad(m.prior, newdata, re_formula=NA)
+
+prior.linpred |>
+  select(starts_with('meta_c2')) |>
+  pivot_longer(starts_with('meta_c2'), 
+               values_to = '.value', names_sep='_',
+               names_to=c(NA, NA, 'response', 'confidence')) |>
+  ggplot(aes(xdist=.value, y=confidence, fill=response)) +
+  stat_slab() +
+  coord_cartesian(xlim=c(-10, 10)) +
+  theme_metad()
+
+```
+
+Just by looking at the prior summary (which displays means and standard deviations), we can see that this prior places reasonable bounds for $M$-ratio, $d'$, and $c$. We can also see that our priors for the type 2 criteria are ordered appropriately with a moderate degree of uncertainty. Note that, in this code, participant-level differences are ignored by setting `re_formula=NA`.
+
+As another check, we can compute the implied type 1 and type 2 response probabilities using the analogous function `epred_rvars_metad`:
+```{r}
+#| echo: true
+#| label: fig_prior_pred
+#| fig-cap: Prior predictions of joint type 1 and type 2 responses.
+epred_rvars_metad(m.prior, newdata, re_formula=NA) |>
+  mutate(joint_response = factor(joint_response(response, confidence, K = 7)),
+         stimulus=factor(stimulus)) |>
+  ggplot(aes(x = joint_response, ydist = .epred)) +
+  stat_pointinterval(aes(color=stimulus), .width=.95, position='dodge') +
+  scale_x_discrete('Joint Response', 
+                   labels=c('Confident\n"0"', '', '', '', '', '', 'Guess\n"0"',
+                            'Guess\n"1"', '', '', '', '', '', 'Confident\n"1"')) + 
+  ylab('Prior probability') +
+  scale_color_discrete('Stimulus') +
+  scale_alpha_discrete('Confidence', range=c(.25, 1)) +
+  theme_metad()
+```
+
+From this figure, it is clear that our priors put roughly equal probability on each response for each possible stimulus with a slight preference for accurate but low confidence responses, which is a reasonable start. If we wanted to regularize responses to make low confidence responses even more likely *a priori*, for example, we could decrease the prior mean for the differences between the type 2 criteria until the prior predictions more closely resembled our beliefs. While it might be intuitive to set priors for other model parameters just by looking at their distributions, this process is essential for setting priors for the type 2 response criteria, because our prior beliefs about the criteria should change as a function of the number of confidence levels (e.g., for a scale with only three confidence levels, we might expect much larger differences between criteria).
+
+
+```{r}
+#| echo: true
+#| label: fig_prior_pred_participant
+#| fig-cap: Prior predictions of joint type 1 and type 2 responses.
+newdata |>
+  mutate(participant=first(d$participant)) |>
+  add_epred_rvars_metad(m.prior) |>
+  mutate(joint_response = factor(joint_response(response, confidence, K = 7)),
+         stimulus=factor(stimulus)) |>
+  ggplot(aes(x = joint_response, ydist = .epred)) +
+  stat_pointinterval(aes(color=stimulus), .width=.95, position='dodge') +
+  scale_x_discrete('Joint Response', 
+                   labels=c('Confident\n"0"', '', '', '', '', '', 'Guess\n"0"',
+                            'Guess\n"1"', '', '', '', '', '', 'Confident\n"1"')) + 
+  ylab('Prior probability') +
+  scale_color_discrete('Stimulus') +
+  scale_alpha_discrete('Confidence', range=c(.25, 1)) +
+  theme_metad()
+```
+
+```{r}
+d |>
+  mutate(joint_response=joint_response(response, confidence, K=7)) |>
+  group_by(task) |>
+  count(stimulus, joint_response) |>
+  mutate(p=n/sum(n)) |>
+  ggplot(aes(x = joint_response, y = p)) +
+  geom_col(aes(fill=factor(stimulus)), position='dodge') +
+  scale_x_discrete('Joint Response', 
+                   labels=c('Confident\n"0"', '', '', '', '', '', 'Guess\n"0"',
+                            'Guess\n"1"', '', '', '', '', '', 'Confident\n"1"')) + 
+  ylab('Probability') +
+  facet_wrap(~ task) +
+  scale_color_discrete('Stimulus') +
+  scale_alpha_discrete('Confidence', range=c(.25, 1)) +
+  theme_metad()
+```
+
+## Model fitting
+
+Now that we have verified that our prior model is sufficient, we can fit it to our data by calling the `fit_metad` function again, except this time removing the argument `sample_prior="only"`. Note that the time it takes to fit a model is mostly dependent on the number of participants and within-participant conditions, not the number of trials: most models should be able to fit within a few minutes, however models fit to large datasets like this one are likely to take over an hour. In such cases, we recommend fitting the model to a smaller subset of the data during development.
+
+```{r model}
+#| echo: true
+m <- fit_metad(
+  formula, data=d, prior = prior,
+  file = "model.rds", init=0, cores = 4, backend = "cmdstanr"
+)
+```
+
+Like any `brms` model, we can obtain numerical and graphical summaries of the posterior distribution using `summary(m)` and `plot(m)`.
+
+```{r}
+
+d.roc1 <- d |> 
+  group_by(participant, task, stimulus) |> 
+  summarize(p=mean(response==1)) |>
+  pivot_wider(names_from=stimulus, values_from=p, 
+              names_prefix='p_') |>
+  mutate(dprime=qnorm(p_1) - qnorm(p_0),
+         c=-.5*(qnorm(p_1) + qnorm(p_0))) |>
+  #select(-p_0, -p_1) |>
+  ungroup()
+
+ggplot(d.roc1, aes(x=c, y=dprime)) +
+  facet_wrap(~ task) +
+  geom_point()
+
+
+d.roc1.corr <- expand_grid(
+    participant=unique(d.roc1$participant),
+    task1=unique(d.roc1$task),
+    task2=unique(d.roc1$task)
+  ) |>
+  left_join(d.roc1 |> rename_with(~ paste0(.x, '1'), task:c)) |>
+  left_join(d.roc1 |> rename_with(~ paste0(.x, '2'), task:c))
+
+ggplot(d.roc1.corr, aes(x=dprime1, y=dprime2)) +
+  geom_abline(slope=1, intercept=0, linetype='dashed') +
+  geom_point() +
+  facet_wrap(task1 ~ task2) +
+  coord_fixed(xlim=c(0, 2.5), ylim=c(0, 2.5)) +
+  theme_classic()
+
+ggplot(d.roc1.corr, aes(x=c1, y=c2)) +
+  geom_abline(slope=1, intercept=0, linetype='dashed') +
+  geom_point() +
+  facet_wrap(task1 ~ task2) +
+  coord_fixed() +
+  theme_classic()
+
+
+ggplot(d.roc1, aes(x=dprime)) +
+  geom_histogram(binwidth = 0.05) +
+  facet_wrap(~ task) +
+  coord_cartesian(xlim=c(0, 3)) +
+  theme_classic()
+
+ggplot(d.roc1, aes(x=c)) +
+  geom_histogram() +
+  facet_wrap(~ task) +
+  theme_classic()
+
+d.count <- d |>
+  group_by(participant, task, stimulus, response) |>
+  count() |>
+  pivot_wider(names_from=response, values_from=n, names_prefix='N_') |>
+  mutate(N=N_0+N_1,
+         stimulus=to_signed(stimulus)) |>
+  ungroup()
+d.count
+contrasts(d.count$stimulus) <- contr.sum
+contrasts(d.count$task) <- contr.sum
+
+m.sdt <- brm(
+  bf(N_1 | trials(N) ~ Phi(stimulus * dprime/2 - c),
+     family=binomial(link='identity'), nl=TRUE) +
+  lf(dprime + c ~ 0 + task + (0 + task || participant)),
+  d.count,
+  cores = 4, init = 0, backend = "cmdstanr",
+  iter=1000, warmup=500,
+  prior=set_prior("normal(0, 1)", 
+                  class="b", nlpar=c("dprime", "c")) +
+   set_prior("normal(0, 1)", class="sd", nlpar=c("dprime", "c"))
+)
+
+draws.sdt <- d.count |>
+  select(-N_0, -N_1) |>
+  add_linpred_draws(m.sdt) |>
+  ungroup() |>
+  select(-c(N:.iteration)) |>
+  pivot_wider(names_from=stimulus, values_from=.linpred,
+              names_prefix='z_') |>
+  mutate(dprime=z_1 - z_0,
+         c=-0.5 * (z_1 + z_0))
+
+draws.sdt |> 
+  group_by(participant, task) |> 
+  median_qi(dprime) |>
+  ggplot(aes(x=task, y=dprime, ymin=.lower, ymax=.upper)) +
+  geom_jitter(width=.33, height=0, size=.5) +
+  theme_metad()
+
+draws.sdt |> 
+  group_by(participant, task) |> 
+  median_qi(c) |>
+  ggplot(aes(x=task, y=c, ymin=.lower, ymax=.upper)) +
+  geom_jitter(width=.33, height=0, size=.5) +
+  theme_metad()
+
+```
+
+```{r}
+library(bayesplot)
+
+rh <- brms::rhat(m)
+np <- nuts_params(m)
+
+pairs(m, variable=c('cor_participant__dprime_taskcalories__dprime_taskmemory',
+                    'cor_participant__dprime_taskvision__c_taskvision'),
+      np=np)
+
+```
+
+
+### Model convergence
+
+There are a number of possible warning messages that one might encounter during model fitting. Some warnings, such as warnings about effective sample size, do not indicate serious problems with the model itself and can usually be resolved with minor adjustments (e.g., running the model for a larger number of iterations). But most of the diagnostics checked by Stan *do* indicate problems with the model that must be resolved before interpreting the resulting posterior. Here we will focus on one common issue resulting from hierarchical models: divergent transitions. For a detailed guide on resolving other model fitting issues, we recommend the [Stan guide on convergence warnings](https://mc-stan.org/learn-stan/diagnostics-warnings.html)
+
+When `brms` outputs warnings that Stan has encountered divergent transitions, this is an indicator that the model's posterior distribution has not been fully explored, meaning that the posterior samples under-represent the true posterior [@betancourt2017]. If there are only a small number of divergent transitions, it may be enough to adjust Stan's settings to enable more fine-grained sampling using the argument `control=list(adapt_delta=<adapt_delta>)` (indeed, this is the default recommendation accompanied by warnings about divergent transitions). However, this approach will significantly slow down model fitting and is not guaranteed to fix the issue.
+
+The first potential solution to this problem is to set more informative priors to help bound difficult posterior geometries. Above, we have chosen moderately informative priors to aid model convergence based on knowledge about the experimental design. This prior information comes from a mixture of general domain expertise and from knowledge about the specific experimental design at hand. For $M$-ratio (which is modeled on the logarithmic scale), the normal prior with mean `0` and standard deviation `.5` generates a distribution of $M$-ratios centered at `1` (the theoretically optimal value) with 95% quantiles of `0.37` and `2.67`. This prior distribution allows us to constrain our inference to values that we would consider plausible *a priori* (e.g., an estimated group mean $M$-ratio of `10`, while technically possible, would be an incredibly surprising finding). For $d'$ and $c$, in contrast, we relied on specific details about the experimental design. In particular, @lund2025 used a two-alternative forced choice task with an adaptive two-down one-up staircase set to converge at 71% accuracy. Such tasks strongly disincentivize response biases (fixing $c$ close to zero), which implies a task-level sensitivity of $d' = -2\Phi^{-1}(1 - .71) \approx 1.11$. Accordingly, we set weakly informative priors centered around these values. All of these constraints help jointly identify the model parameters and avoid convergence issues.
+
+Another potential solution is to investigate which parameters problematic posterior geometry and eliminate them from the model. In the context of the meta-$d'$ model, a common source of such problems is that parameters are poorly identified when participants always make the same responses to a stimulus. For instance, if a participant has zero false alarms (meaning that they never report a stimulus as present when it is absent), it is imp
+
+For instance, if a participant never responds with adjacent levels of confidence, it is impossible to identify their confidence criteria for these confidence levels. This issue is somewhat mitigated in a multilevel model such as the one we present here, since participant-level estimates are informed by the group-level means. However, if there are enough empty cells, or if the group-level estimates themselves are under-powered, participant-level estimates of the confidence thresholds may still be poorly identified. In such cases, it is necessary to eliminate these parameters by either excluding participants that do not sufficiently use the confidence scale or by collapsing across participants. However, we recommend exercising caution when excluding participants based on their confidence responses to ensure that such exclusions do not result in undesired selection effects. Again, these issues can be somewhat mitigated with careful experimental design encouraging participants to make full use of the confidence scale, highlighting the tight link between experimental design and computational modeling.
+
+## Posterior estimates
+
+In this section, we demonstrate how to use the `hmetad` package allows to assess model fit and interpret model parameters. For each kind of estimate, the `hmetad` package provides a set of four functions based on the `tidybayes` package. 
+First, functions differ on the order of the arguments they accept: by default functions take the model object and then the data over which to make predictions, but for convenience functions with the prefix `add_` accept the data argument first. The functions also differ in terms of the format of the outputs they produce: functions with the suffix `_draws` produce tidy tibbles with one row per posterior draw, whereas functions with the suffix `_rvars` use the `posterior::rvar` data type to store all draws for a given condition in a single row. Here we use the `_rvars` variants of each function, because they will generally be much more efficient in terms of memory consumption and computation time.
+
+
+### Parameter values
+
+As an initial check, it is useful to extract the parameters from the model. Just like for the prior model, we can do this by first creating a dataset representing the rows for which to make model predictions. In this case, since we would like model predictions for each task averaging over participants, we can make a dataset with one row per task:
+```{r newdata}
+#| echo: true
+newdata <- d |>
+  distinct(task)
+newdata
+```
+
+Then, we can call `linpred_rvars_metad` with `re_formula = NA` to obtain parameter estimates from our model ignoring participant-level differences (@fig_linpred):
+```{r linpred}
+#| echo: true
+draws.linpred <- linpred_rvars_metad(m, newdata, re_formula = NA)
+draws.linpred
+```
+
+We can also get parameter estimates per participant and task by including participant in our data frame and by removing the argument `re_formula = NA`:^[Here we use `tidybayes::add_linpred_rvars` instead of `hmetad::add_linpred_rvars_metad` simply because we do not need parameter estimates for the type 2 thresholds, which can take some time to compute.]
+```{r linpred_participant}
+#| echo: true
+draws.linpred.participant <- d |>
+  distinct(participant, task) |>
+  add_linpred_rvars(m, value="M", dpar=c("dprime", "c"), transform=TRUE)
+draws.linpred.participant
+```
+
+
+```{r}
+#| label: fig_linpred
+#| fig-cap: Estimated Model Parameters from @lund2025
+plot.M <- draws.linpred.participant |>
+  group_by(participant, task) |>
+  median_qi(M) |>
+  ggplot(aes(x=task, y=M, group=participant)) +
+  geom_hline(yintercept=1, linetype='dashed') +
+  geom_jitter(size=.1, height=0, alpha=.25) +
+  stat_pointinterval(aes(x=task, ydist=M), inherit.aes=FALSE,
+                     data=draws.linpred) +
+  ylab("M ratio") +
+  theme_metad()
+
+plot.dprime <- draws.linpred.participant |>
+  group_by(participant, task) |>
+  median_qi(dprime) |>
+  ggplot(aes(x=task, y=dprime, group=participant)) +
+  #geom_hline(yintercept=1, linetype='dashed') +
+  geom_jitter(size=.1, height=0, alpha=.25) +
+  stat_pointinterval(aes(x=task, ydist=dprime), inherit.aes=FALSE,
+                     data=draws.linpred) +
+  coord_cartesian(ylim=c(0, NA)) +
+  ylab("d'") +
+  theme_metad()
+
+(plot.dprime | plot.M)
+```
+
+```{r corr}
+draws.corr <- expand_grid(participant=unique(d$participant),
+            task1=unique(d$task),
+            task2=unique(d$task)) |>
+  left_join(draws.linpred.participant |> 
+              rename_with(~ paste0(.x, '1'), .cols=task:c)) |>
+  left_join(draws.linpred.participant |> 
+              rename_with(~ paste0(.x, '2'), .cols=task:c)) |>
+  median_qi(M1, M2, dprime1, dprime2, c1, c2)
+
+ggplot(draws.corr, 
+       aes(x=M1, xmin=M1.lower, xmax=M1.upper,
+           y=M2, ymin=M2.lower, ymax=M2.upper)) +
+  geom_abline(slope=1, intercept=0, linetype='dashed') +
+  geom_errorbar(orientation='x', alpha=.05) +
+  geom_errorbar(orientation='y', alpha=.05) +
+  geom_point(size=1) +
+  facet_grid(task2 ~ task1) +
+  coord_fixed() +
+  theme_classic()
+
+ggplot(draws.corr,
+       aes(x=dprime1, xmin=dprime1.lower, xmax=dprime1.upper,
+           y=dprime2, ymin=dprime2.lower, ymax=dprime2.upper)) +
+  geom_abline(slope=1, intercept=0, linetype='dashed') +
+  geom_errorbar(orientation='x', alpha=.05) +
+  geom_errorbar(orientation='y', alpha=.05) +
+  geom_point(size=1) +
+  facet_grid(task2 ~ task1) +
+  coord_fixed() +
+  theme_classic()
+
+ggplot(draws.corr,
+       aes(x=c1, xmin=c1.lower, xmax=c1.upper,
+           y=c2, ymin=c2.lower, ymax=c2.upper)) +
+  geom_abline(slope=1, intercept=0, linetype='dashed') +
+  geom_errorbar(orientation='x', alpha=.05) +
+  geom_errorbar(orientation='y', alpha=.05) +
+  geom_point(size=1) +
+  facet_grid(task2 ~ task1) +
+  coord_fixed() +
+  theme_classic()
+```
+
+
+### Posterior predictions
+
+Another common way to check model fit is to perform a *posterior predictive check*; that is, to simulate type 1 and type 2 responses from the model, comparing them to the data. We can simulate 1000 trials per task with the function `predicted_rvars_metad` (@fig_pred):
+```{r pred}
+#| echo: true
+draws.pred <- newdata |>
+  mutate(N=1000) |>
+  add_predicted_rvars_metad(m, re_formula = NA)
+draws.pred
+```
+
+```{r}
+#| label: fig_pred
+#| fig-cap: Posterior predictions of joint type 1 and type 2 responses.
+#| fig-height: 6
+#| fig-dpi: 1000
+draws.pred |>
+  mutate(joint_response = factor(joint_response(response, confidence, K = 7)),
+         stimulus=factor(stimulus)) |>
+  ggplot(aes(x = joint_response, ydist = .prediction)) +
+  stat_ccdfinterval(aes(fill=stimulus), position="dodge", point_interval=NULL) +
+  xlab('Joint Response') + ylab('Predicted # of trials (of 1000)') +
+  facet_grid(task ~ .) +
+  scale_fill_discrete("Stimulus") +
+  theme_metad()
+```
+
+
+### Posterior expectations
+
+One downside of the above approach is that trial counts depend on the total number of trials, and there are often different total trial counts for different participants. So, it is usually more interpretable to get model predictions of the joint response probabilities instead: 
+```{r epred}
+#| echo: true
+draws.epred <- epred_rvars_metad(m, newdata, re_formula = NA)
+draws.epred
+```
+
+Comparing these predictions to the empirical joint response probabilities averaging over participants, we can see that the model mostly reproduces the empirical probabilities quite well (@fig_epred). More major deviations between the model estimated probabilities and the empirical probabilities could indicate that one or more assumptions of the model are violated.
+
+```{r}
+#| label: fig_epred
+#| fig-cap: Posterior predictions of joint type 1 and type 2 responses.
+#| fig-height: 6
+#| fig-dpi: 1000
+draws.epred |>
+  mutate(joint_response = factor(joint_response(response, confidence, K = 7)),
+         stimulus=factor(stimulus)) |>
+  ggplot(aes(x = joint_response, ydist = .epred)) +
+  stat_ccdfinterval(aes(fill=stimulus), position="dodge", point_interval=NULL) +
+  geom_point(aes(x=joint_response, y=p, group=stimulus), inherit.aes = FALSE, 
+             position=position_dodge(1),
+             data=d |>
+               mutate(joint_response = factor(joint_response(response, confidence, K = 7))) |>
+               group_by(task, stimulus, joint_response) |>
+               count() |>
+               group_by(task, stimulus) |>
+               mutate(p=n/sum(n))) +
+  xlab('Joint Response') + ylab('Posterior probability') +
+  facet_grid(task ~ .) +
+  scale_fill_discrete("Stimulus") +
+  theme_metad()
+```
+
+Comparing to the raw data, it is clear that the model slightly under-predicts responses with low confidence and slightly over-predicts responses with high confidence, although the deviations vary by task and are relatively small relative to posterior uncertainty. If the deviations between the posterior predictions and the data were more substantial, this would indicate that at least one assumption of the model (e.g., Gaussian evidence distributions) is violated. It is also important to note that while it is easiest to perform posterior predictive checks aggregating over participants, in practice it will be most informative to perform checks separately for each grouping relevant to the model. For example, participants that are poorly described by the model may reflect important individual differences, but they might also reflect problematic behavior that should be excluded from model fitting (e.g., participants that use only a single confidence level).
+
+```{r}
+
+
+```
+
+### Mean confidence
+
+The function `mean_confidence_rvars` can be used to calculate predicted mean confidence as a function of the stimulus, the response, and/or correctness. It is common for researchers to compute mean confidence for two reasons. First, many researchers use the difference in mean confidence for correct and incorrect responses as an empirical index of metacognitive sensitivity, which can be computed with the argument `by_correct = TRUE`:
+```{r, mean_confidence}
+#| echo: true
+draws.mean_conf <- mean_confidence_rvars(m, newdata, re_formula = NA, by_correct = TRUE)
+draws.mean_conf
+```
+
+```{r}
+#| label: fig_mean_confidence
+#| fig-cap: Estimated mean confidence by accuracy from @lund2025.
+#| fig-width: 5
+draws.mean_conf |>
+  mutate(correct = factor(correct)) |>
+  ggplot(aes(y = task, xdist = .epred, fill = correct, side = correct)) +
+  stat_slab(position=position_dodge(.25),
+            show.legend=c(side=FALSE)) +
+  geom_point(aes(y=task, x=confidence), inherit.aes=FALSE,
+             data=d |> 
+               group_by(participant, task, correct=(stimulus==response)) |>
+               summarize(confidence=mean(confidence)) |> 
+               group_by(task, correct) |>
+               summarize(confidence=mean(confidence))
+             #data=d |> 
+            #   group_by(task, correct=(stimulus==response)) |>
+            #   summarize(confidence=mean(confidence))
+             ) +
+  #stat_pointinterval(position=position_dodge(.25),
+  #                   .width=.95, show.legend=FALSE) +
+  scale_side_mirrored(start="bottom") +
+  scale_x_continuous("Mean Confidence", limits = c(1, 7), breaks = 1:7) +
+  scale_fill_discrete("Correct") +
+  theme_metad() +
+  theme(axis.title.y=element_blank())
+```
+
+Another common reason for computing mean confidence is as an empirical index of metacognitive bias, with the intuition that participants with higher confidence on average are more overconfident than participants with lower confidence on average. By default, mean confidence is computed separately for each stimulus and type 1 response:
+```{r, mean_confidence2}
+#| echo: true
+mean_confidence_rvars(m, newdata, re_formula = NA)
+```
+
+We can compute mean confidence averaging over stimuli and responses by setting `by_stimulus = FALSE` and `by_response = FALSE`:
+```{r, mean_confidence3}
+#| echo: true
+mean_confidence_rvars(m, newdata, re_formula = NA, by_stimulus = FALSE, by_response = FALSE)
+```
+Of course, it is usually helpful to compare the model estimates with the empirical means:
+```{r}
+d |> 
+  group_by(task) |> 
+  summarize(mean=mean(confidence)) |> 
+  add_mean_confidence_rvars(m, by_stimulus = FALSE, by_response = FALSE, re_formula=NA)
+```
+
+
+### Metacognitive bias
+
+Although it is common to use mean confidence as a measure of metacognitive bias, it has been shown that mean confidence is confounded by changes in type 1 performance and by changes in metacognitive sensitivity [@sherman2018]. As an alternative, we recommend computing a new index which we call meta-$\Delta$:
+
+$$
+\begin{align*}
+    \meta{\Delta}_r &= \left|\frac{1}{K-1}\sum_{k=1}^{K-1}\left[\meta{c}_{2,k}^r\right] - \meta{c}\right|
+\end{align*}
+$$
+The formula above illustrates that $\meta{\Delta}$ is simply the distance between $\meta{c}$ and the average of the confidence criteria for a type 1 response $r$, $\metabf{c_2^r}$. 
+
+Since averaging is a linear operator, and since the `hmetad` package parameterizes confidence criteria in terms of their successive differences, $\meta{\Delta}$ can be more efficiently computed using the formula:
+$$
+\begin{align*}
+    \meta{\Delta}_r &= \sum_{k=1}^{K-1} \frac{K - k}{K-1}\delta\meta{c_{2,k}^r}
+\end{align*}
+$$
+
+$\meta{\Delta}$ has a natural scale in which a participant with $\meta{\Delta} = 0$ exclusively uses the highest confidence rating and a participant with $\meta{\Delta} = \infty$ exclusively uses the lowest confidence rating. More importantly, unlike mean confidence, it has been shown to be independent of type 1 sensitivity, response bias, and metacognitive sensitivity. We can compute $\meta{\Delta}$ using the function `metacognitive_bias_rvars`:
+
+```{r, bias}
+#| echo: true
+draws.bias <- metacognitive_bias_rvars(m, newdata, re_formula = NA)
+draws.bias
+```
+
+Plotting out model estimates, we can see that in this case $\meta{\Delta}$ largely agrees with mean confidence that participants were generally less confident in the visual task compared to the calories task (@fig_bias).
+
+```{r}
+#| label: fig_bias
+#| fig-cap: Estimated metacognitive bias from @lund2025.
+#| fig-width: 5
+draws.bias |>
+  mutate(response=factor(response)) |>
+  ggplot(aes(y = task, xdist = metacognitive_bias, 
+             fill=response, side=response)) +
+  stat_slab(position=position_dodge(.25),
+            show.legend=c(side=FALSE)) +
+  stat_pointinterval(position=position_dodge(.25),
+                     .width=.95, show.legend=FALSE) +
+  scale_side_mirrored(start='bottom') +
+  scale_x_continuous("Metacognitive Bias") +
+  coord_cartesian(xlim=c(0, NA)) +
+  scale_fill_discrete("Response") +
+  theme_metad() +
+  theme(axis.title.y=element_blank())
+```
+
+### Psuedo type 1 ROC
+
+As an alternative to inspecting raw joint response probabilities, it is also common for researchers to be interested in the receiver operating characteristic curves.
+
+```{r roc1}
+#| echo: true
+draws.roc1 <- roc1_rvars(m, newdata, re_formula = NA)
+draws.roc1
+```
+
+```{r}
+#| label: fig_roc1
+#| fig-cap: Pseudo type 1 receiver operating characteristic curve from @lund2025.
+#| fig-width: 10
+#| fig-height: 8
+draws.roc1 |>
+  median_qi(p_fa, p_hit) |>
+  ggplot(aes(x=p_fa, xmin=p_fa.lower, xmax=p_fa.upper,
+             y=p_hit, ymin=p_hit.lower, ymax=p_hit.upper,
+             color=task)) +
+  geom_abline(slope=1, intercept=0, linetype='dashed') +
+  geom_errorbar(width=0, orientation='x') +
+  geom_errorbar(width=0, orientation='y') +
+  geom_line(linewidth=.5) +
+  scale_x_continuous("P(False Alarm)", 
+                     labels=c("0", ".25", ".5", ".75", "1")) +
+  scale_y_continuous("P(Hit)",
+                     labels=c("0", ".25", ".5", ".75", "1")) +
+  coord_fixed(xlim=c(0, 1), ylim=c(0, 1), expand=FALSE) +
+  scale_color_discrete("Task") +
+  theme_bw(18) +
+  theme(panel.grid.minor=element_blank())
+```
+
+### Type 2 ROC
+
+```{r roc2}
+#| echo: true
+draws.roc2 <- roc2_rvars(m, newdata, re_formula = NA)
+draws.roc2
+```
+
+```{r}
+#| label: fig_roc2
+#| fig-cap: Type 2 receiver operating characteristic curve from @lund2025.
+#| fig-width: 10
+#| fig-height: 8
+draws.roc2 |>
+  median_qi(p_fa2, p_hit2) |>
+  ggplot(aes(x=p_fa2, xmin=p_fa2.lower, xmax=p_fa2.upper,
+             y=p_hit2, ymin=p_hit2.lower, ymax=p_hit2.upper,
+             color=task)) +
+  geom_abline(slope=1, intercept=0, linetype='dashed') +
+  geom_errorbar(width=0, orientation='x') +
+  geom_errorbar(width=0, orientation='y') +
+  geom_line(linewidth=.5) +
+  facet_wrap(~ response, labeller=as_labeller(~ paste0("Response: ", .))) +
+  scale_x_continuous("P(Type 2 False Alarm)", 
+                     labels=c("0", ".25", ".5", ".75", "1")) +
+  scale_y_continuous("P(Type 2 Hit)",
+                     labels=c("0", ".25", ".5", ".75", "1")) +
+  coord_fixed(xlim=c(0, 1), ylim=c(0, 1), expand=FALSE) +
+  scale_color_discrete("Task") +
+  theme_bw(18) +
+  theme(panel.grid.minor=element_blank())
+```
+
+
+
+## Alternative signal distributions
+

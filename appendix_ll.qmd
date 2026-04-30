@@ -1,0 +1,64 @@
+Computation with raw probabilities often leads to numerical issues like underflow, as well as potentially problematic posterior geometry. To reduce both issues, the probabilistic programming language Stan (which the `hmetad` pacakge is built on) performs computations and evaluates gradients on the logarithmic scale. For the categorical likelihood:
+\begin{align*}
+    \ell(\bm{\theta} \;\vert\; S=\bm{s},R=\bm{r},C=\bm{c}) &= \log\mathcal{L}(\bm{\theta} \;\vert\; S=\bm{s},R=\bm{r},C=\bm{c}) \\
+    &= \log\prod_{n=1}^N P(R=r_n, C=c_n \;\vert\; S=s_n) \\
+    &= \sum_{n=1}^N \log P(R=r_n, C=c_n \;\vert\; S=s_n)
+\end{align*}
+And for the multinomial likelihood:
+\begin{align*}
+    \ell(\bm{\theta} \;\vert\; \bm{N}) &= \log \mathcal{L}(\bm{\theta} \;\vert\; \bm{N}) \\
+    &\propto \log \prod_{s,r,c} P(R=r, C=c \;\vert\; S=s)^{N_{s,r,c}} \\
+    &\propto \sum_{s,r,c} N_{s,r,c} \log P(R=r, C=c \;\vert\; S=s)
+\end{align*}
+In both cases, the likelihood reduces to a sum over the log joint probability of a type 1 and type 2 response given a stimulus. To further increase numerical stability, the `hmetad` package also computes these probabilities on the logarithmic scale. Where $F_{\mathcal{D}}$ is the cumulative distribution function of $\mathcal{D}$ and $\bar{F}_{\mathcal{D}}$ is its complementary cumulative distribution function:
+\begin{align*}
+    \log\; &P(R=r, C=c \;\vert\; S=s) \\
+    &= \log P(R=r \;\vert\; S=s) + \log P(C=c \;\vert\; S=s, R=r) \\
+    &= \begin{cases}
+        \begin{aligned}
+            \log&\left[F_{\mathcal{D}_{s}(d')}(c)\right] \\[.25em]
+            &+ \log\left[F_{\mathcal{D}_s(\meta{d'})}\left(\meta{c}\right) - F_{\mathcal{D}_s(\meta{d'})}\left(\meta{c_{2,1}^0}\right)\right] \\[.25em]
+            &- \log\left[F_{\mathcal{D}_s(\meta{d'})}\left(\meta{c}\right)\right]    
+        \end{aligned} & \textrm{if } r=0, c=1 \\[2.5em]
+        %
+        \begin{aligned}
+            \log&\left[F_{\mathcal{D}_{s}(d')}(c)\right] \\[.25em]
+            &+ \log\left[F_{\mathcal{D}_s(\meta{d'})}\left(\meta{c_{2,k}^0}\right) -
+            F_{\mathcal{D}_s(\meta{d'})}\left(\meta{c_{2,k+1}^0}\right)\right] \\[.25em]
+            &-  \log\left[F_{\mathcal{D}_s(\meta{d'})}\left(\meta{c}\right)\right]
+        \end{aligned} & \textrm{if } r=0, 1 \le c \le K \\[2.5em]
+        %
+        \begin{aligned}
+            \log&\left[F_{\mathcal{D}_{s}(d')}(c)\right] \\[.25em]
+            &+ \log\left[F_{\mathcal{D}_s(\meta{d'})}\left(\meta{c_{2,K}^0}\right)\right] \\[.25em]
+            &- \log\left[F_{\mathcal{D}_s(\meta{d'})}\left(\meta{c}\right)\right]
+        \end{aligned} & \textrm{if } r=0, c = K \\[2.5em]
+        %
+        \begin{aligned}
+            \log&\left[\bar{F}_{\mathcal{D}_{s}(d')}(c)\right] \\[.25em]
+            &+ \log\left[F_{\mathcal{D}_s(\meta{d'})}\left(\meta{c_{2,1}^1}\right) -
+            F_{\mathcal{D}_s(\meta{d'})}\left(\meta{c}\right)\right] \\[.25em]
+            &- \log\left[\bar{F}_{\mathcal{D}_s(\meta{d'})}\left(\meta{c}\right)\right]
+        \end{aligned} & \textrm{if } r=1, c=1 \\[2.5em]
+        %
+        \begin{aligned}
+            \log&\left[\bar{F}_{\mathcal{D}_{s}(d')}(c)\right] \\[.25em]
+            &+ \log\left[F_{\mathcal{D}_s(\meta{d'})}\left(\meta{c_{2,k+1}^1}\right) -
+            F_{\mathcal{D}_s(\meta{d'})}\left(\meta{c_{2,k}^1}\right)\right] \\[.25em]
+            &- \log\left[\bar{F}_{\mathcal{D}_s(\meta{d'})}\left(\meta{c}\right)\right]
+        \end{aligned} & \textrm{if } r=1, 1 \le c \le K \\[2.5em]
+        %
+        \begin{aligned}
+            \log&\left[\bar{F}_{\mathcal{D}_{s}(d')}(c)\right] \\[.25em]
+            &+ \log\left[\bar{F}_{\mathcal{D}_s(\meta{d'})}\left(\meta{c_{2,K}^1}\right)\right] \\[.25em]
+            &- \log\left[\bar{F}_{\mathcal{D}_s(\meta{d'})}\left(\meta{c}\right)\right]    
+        \end{aligned}
+        & \textrm{if } r=1, c = K
+    \end{cases}
+\end{align*}
+
+Here, each term is the logarithm of either the cumulative distribution function, the complementary cumulative distribution function, or the difference between cumulative distribution functions of $\mathcal{D}$. Stan has built-in functions for the logarithm of the (complementary) cumulative distribution function of most distributions (e.g., the standard normal distribution). So, all that is needed is to compute the difference on the log scale. The `hmetad` function accomplishes this through the Stan function $\texttt{log\_diff\_exp}(x,y) = \log(e^x - e^y)$, in particular:
+\begin{align*}
+    \log\left[F_\mathcal{D}(c_1) - F_\mathcal{D}(c_2) \right] = \texttt{log\_diff\_exp}\!\left(\log F_\mathcal{D}(c_1), \log F_\mathcal{D}(c_2)\right)
+\end{align*}
+Because of this formulation, the `hmetad` package supports any unbounded Thurstonian distribution (i.e., any distribution with a location parameter and fixed scale) given a definition of its log (complementary) cumulative distribution function in both R and Stan.

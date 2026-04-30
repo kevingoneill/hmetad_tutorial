@@ -1,0 +1,64 @@
+---
+title: | 
+  Quantifying metacognitive performance \
+  with the `hmetad` package
+shorttitle: "Quantifying metacognitive performance with `hmetad`"
+author:
+  - name: Kevin O'Neill
+    orcid: 0000-0001-7401-9802
+    email: kevin.o'neill@ucl.ac.uk
+    corresponding: true
+    affiliation:
+      - name: University College London
+        department: Department of Experimental Psychology
+        address: 26 Bedford Way
+        city: London
+        country: United Kingdom
+        postal_code: WC1H 0AP
+        id: ep
+      - name: University College London
+        department: Institute of Cognitive Neuroscience
+        address: 17 Queen Square
+        city: London
+        country: United Kingdom
+        postal_code: WC1N 3AZ
+        id: icn
+  - name: Stephen M. Fleming
+    orcid: 0000-0003-0233-4891
+    email: stephen.fleming@ucl.ac.uk
+    affiliation:
+      - ref: ep
+      - ref: icn
+abstract: "A longstanding goal in metacognition research is the quantification of confidence-related performance independently from task-related performance. While there is now a proliferation of generative models of confidence in numerous psychological tasks, the meta-$d'$ model remains a popular approach to estimating metacognitive sensitivity and metacognitive bias in the framework of Signal Detection Theory. However, as research questions in metacognition research increase in complexity, it remains an ongoing challenge to develop extensions of the meta-$d'$ model built to deal with longitudinal, repeated-measures, or other  complex experimental designs. Here we introduce the open-source R package `hmetad`, which allows users to easily fit the meta-$d'$ model for a wide range of experimental designs using a familiar formula syntax. We also review how the meta-$d'$ model can be validated in a Bayesian workflow focused on a range of posterior estimates. Overall, the `hmetad` package offers a comprehensive interface to fitting, evaluating, and visualizing signal detection theoretic models of metacognitive performance."
+---
+
+<!-- The introduction should not have a level-1 heading such as Introduction. -->
+
+# The $\meta{d'}$ model
+
+{{< include metad_model.qmd >}}
+
+
+# Fitting the $\meta{d'}$ model in R
+
+{{< include model_fitting.qmd >}}
+
+# Discussion
+
+
+
+# References
+
+<!-- References will auto-populate in the refs div below -->
+
+::: {#refs}
+:::
+
+
+
+# Log likelihood of the $\meta{d'}$ model {#apx-ll}
+{{< include appendix_ll.qmd >}}
+
+# Second appendix section {#apx-2}
+
+
