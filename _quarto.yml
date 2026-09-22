@@ -1,33 +1,29 @@
-project:
-  type: manuscript
-  render:
-    - index.qmd
-  preview: 
-    port: 8000
+preview: 
+  port: 8000
 
-manuscript:
-  article: index.qmd
+#manuscript:
+#  article: index.qmd
+#  code-links: repo
 
+#notebook-links: false
+  
 format:
+  apaquarto-html:
+    fig-format: svg
+    fig-width: 10
+    fig-height: 4
+    fig-dpi: 600
   apaquarto-pdf:
     documentmode: doc
-#    mainfont: "Arial"    # can also use "UCL Sans" 
     fontsize: 10pt
-    keep-tex: false
-    draftfirst: true
+    keep-tex: true
     fig-format: pdf
     fig-width: 10
     fig-height: 4
     fig-dpi: 600
-
-include-in-header: preamble.tex
-
-execute:
-  freeze: false
-  cache: true
-  warning: false
-  message: false
-  error: false
+    include-in-header: _preamble.tex
+  apaquarto-docx: default
+#pdf-engine: lualatex
 
 word-count: true
 floatsintext: true
@@ -37,7 +33,23 @@ no-ampersand-parenthetical: false
 meta-analysis: true
 lang: en
 bibliography: references.bib
-
 # number-sections: true  ## use for section numbering
 
+execute:
+  echo: true
+  freeze: false
+  cache: true
+  warning: false
+  message: false
+  error: false
 
+knitr:
+  opts_chunk:
+    tidy: "styler"
+    cache.lazy: FALSE
+#    R.options:
+#      width: 25
+
+# enable tikz figures
+filters:
+  - tikz

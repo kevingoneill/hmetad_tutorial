@@ -1,0 +1,273 @@
+In this section, we review the $\meta{d'}$ model, focusing on its generative mechanism for confidence ratings and the unique parameterization of the model used in the `hmetad` package.
+
+## Data
+The $\meta{d'}$ model can be used to describe data from binary choice tasks with ordinal-valued confidence ratings ([@fig-paradigm]A). That is, given a stimulus $S \in \{0, 1\}$, the participant is asked to make a response $R \in \{0, 1\}$ along with a confidence rating $C \in \{1, \ldots, K\}$ (where $K$ is the maximum confidence rating), such that the participant's decision is correct if $R = S$. For instance, participants might be asked to judge whether a stimulus is old (i.e., presented in a prior study phase) or new, determine whether a random dot motion stimulus is moving left or right, or decide which of two food items contains more calories. Along with the primary decision, participants are asked to rate their confidence in their decision on an ordinal scale indicating whether their decision was a guess, made with high confidence, or somewhere in between.^[Note that the lower bound on this scale represents guesses, not decisions which the participant is confident are incorrect. Although such changes of mind are of interest to metacognition research, they are incompatible with the $\meta{d'}$ model and tend to be very infrequent in controlled laboratory tasks.] Following @clarke1959, we refer to the primary decision as the *Type I* task and the task of rating confidence as the *Type II* task. 
+
+While it is designed for experimental paradigms with separate Type I and Type II decisions, the $\meta{d'}$ model is also compatible with paradigms in which the participants make a single joint Type I/Type II response with endpoints representing a confident decision in either of the two Type I responses and with the center representing low confidence ($J \in \{1, \ldots, 2K\}$, see [@fig-paradigm]B).^[Because it is designed for tasks in which the Type I task is forced-choice, the $\meta{d'}$ model can only be used when the joint response has an even number of values.] This design is often preferable because it takes less time than separate responses and it reduces the likelihood that a participant changes their mind between responses. One can convert between the separate and joint responses using the equations below, implemented as the functions `type1_response`, `type2_response`, and `joint_response` in the `hmetad` package:
+
+\begin{align*}
+    R = \texttt{type1\_response}(J, K) &= \llbracket J > K \rrbracket \\
+    C = \texttt{type2\_response}(J, K) &= \begin{cases}
+       J-K & \textrm{if } R=1 \\
+       K+1-J & \textrm{if } R=0 \\
+    \end{cases} \\
+    J = \texttt{joint\_response}(R, C, K) &= \begin{cases}
+       K+C & \textrm{if } R=1 \\
+       K+1-C & \textrm{if } R=0 \\
+    \end{cases}
+\end{align*}
+
+
+::: {#fig-paradigm}
+```{.tikz}
+%%| additionalPackages: \usepackage{cmbright}
+\include{_tikz_header.tex}
+\begin{tikzpicture}
+	\node[image, minimum size=2cm] (stimulus) { \includegraphics[width=2cm]{figures/gabor.png} };
+	\node[minimum size=2cm] (response) [right = of stimulus] {
+		Present? \\\vspace{-.15cm}\\
+		\textbf{N \hspace{.25em} Y}
+	};
+	\node[minimum size=2cm] (confidence) [right = of response] { 
+		Confidence? \\\vspace{-.15cm}\\
+		\textbf{1 \hspace{.1em} 2 \hspace{.1em} 3 \hspace{.1em} 4}
+	};
+	\path (stimulus) edge (response);
+	\path (response) edge (confidence);
+    
+    \node[unboxed] (type1) [below = 0.1cm of response] { Type I\\Response };
+    \node[unboxed] (type2) [below = 0.1cm of confidence] { Type II\\Response };
+    
+    \node[image, minimum size=2cm] (stimulus2) [right = 2cm of confidence] { \includegraphics[width=2cm]{figures/gabor.png} };
+	\node[minimum size=2cm] (response2) [right = of stimulus2] {
+		Direction? \\\vspace{-.25cm}\\
+		L \hspace{1.33cm} R \\\vspace{-.25cm}\\
+        \textbf{
+          4 \hspace{.025em} 3 \hspace{.025em} 2 \hspace{.025em} 1 \hspace{.2em} 
+          1 \hspace{.025em} 2 \hspace{.025em} 3 \hspace{.025em} 4
+        }
+	};
+	\path (stimulus2) edge (response2);
+    
+    \node[unboxed] (type2) [below = 0.1cm of response2] { Joint Type I/Type II\\Response };
+    \node[unboxed] (a) [above left = .15cm of stimulus] {\Large \textbf{A}};
+    \node[unboxed] (b) [above left = .15cm of stimulus2] {\Large \textbf{B}};
+\end{tikzpicture}
+```
+
+Two example tasks amenable to analysis with the $\meta{d'}$ model. *(A)* A signal detection task with a separate Type I and Type II response. *(B)* A two-alternative forced-choice (2AFC) task with a combined Type I/Type I response. In both tasks, the set of responses made on the trial can be decomposed into a binary Type I response and an ordinal Type II response.
+:::
+
+
+## Generative model
+Given the design above, the $\meta{d'}$ model aims to explain the distribution of Type I and Type II responses. Early descriptions of the model stressed that it was not intended to be a generative model; initially, it was simply meant to describe (a) the relation between Type I responses and the stimulus, and (b) the relation between Type II responses and the accuracy of the Type I responses. However, over time this characterization has shifted to an understanding that the $\meta{d'}$ model is sensitive to a number of generative assumptions, indicating that it is not in fact a theory-free model [@guggenmos2021; @rausch2023]. Keeping this in mind, we next overview the statistical process underlying the $\meta{d'}$ model [@fig-metad-model], identifying relevant assumptions along the way.
+
+```{r}
+#| label: fig-metad-model
+#| fig-cap: |
+#|   Generative process underlying the $\meta{d'}$ model.
+#|   *(A)* The observer receives an evidence signal which noisily encodes the stimulus with sensitivity $d'$.
+#|         They make a Type I response by comparing the evidence to a response criterion $c$.
+#|   *(B)* Depending on the Type I response, the observer receives a second piece of evidence about the stimulus,
+#|         now with sensitivity $\meta{d'}$. They make a confidence rating by comparing the evidence to a set
+#|         of ordered confidence criteria, $\metabf{c_2^R}$.
+#|   *(C)* Trials are categorized depending on the stimulus and joint Type I/Type II response, where the
+#|         probability of each trial type is determined by the product of area under the Type I and
+#|         Type II evidence distribution curves.
+#| fig-width: 10
+#| fig-height: 10
+#| echo: false
+evidence <- tibble(stimulus=factor(0:1),
+                   d_prime=2, c=0.5, meta_d_prime=1,
+                   mu1=c(-1, 1)*d_prime/2, sd=1,
+                   mu2=c(-1, 1)*meta_d_prime/2,
+                   c2_0=-1, c2_1=1)
+
+p.type1 <- type1_plot(evidence)
+p.type2.0 <- type2_plot(evidence, response=0)
+p.type2.1 <- type2_plot(evidence, response=1)
+offset <- (first(evidence$c)+2.5) / 5
+
+p.joint <- tibble(
+  stimulus=rep(0:1, each=4),
+  response=rep(0:1, each=2, times=2),
+  confidence=rep(c(rev(seq_len(2)), seq_len(2)), times=2),
+  joint_response=rep(seq_len(4), 2),
+  p=c(metad_pmf(0, evidence$d_prime[1], evidence$c[1], evidence$meta_d_prime[1],
+                evidence$c[1], evidence$c2_0[1], evidence$c2_1[1]),
+      metad_pmf(1, evidence$d_prime[1], evidence$c[1], evidence$meta_d_prime[1],
+                evidence$c[1], evidence$c2_0[1], evidence$c2_1[1]))
+) |>
+  mutate(across(stimulus:joint_response, factor)) |>
+  ggplot(aes(x=joint_response, y=p, fill=stimulus)) +
+  geom_col(position="dodge") +
+  scale_x_discrete(
+    "Joint Response",
+    labels = c('Confident\n"0"', 'Guess\n"0"', 'Guess\n"1"', 'Confident\n"1"')
+  ) +
+  scale_y_continuous("Probability", expand = expansion(mult = c(0, .1))) &
+  scale_fill_manual("Stimulus", labels = c("0", "1"), values = PALETTE_STIM) &
+  theme_metad()
+
+
+(p.type1 /
+   ((p.type2.0 | p.type2.1) +
+      plot_layout(widths=c(offset, 1-offset))) /
+   p.joint) +
+  plot_layout(guides='collect') +
+  plot_annotation(tag_levels=list(c('A', 'B', '', 'C')))
+```
+
+
+### Type I responses
+As the $\meta{d'}$ model is an extension of Signal Detection Theory (SDT), its model for Type I responses is simply the equal variance signal detection model [@green1966; @clarke1959]. Given the stimulus $S$, equal variance SDT assumes that the observer is presented with a noisy signal $x_1 \sim \mathcal{D}_S(d')$ following a distribution $\mathcal{D}$ parameterized by the observer's sensitivity to the stimulus $d'$ [@fig-metad-model]A. Although other options are available, it is common to assume that $\mathcal{D}$ is a normal distribution with unit variance, such that:
+\begin{align*}
+    \mathcal{D}_0(d') &= \mathcal{N}\left(-\frac{d'}{2}, 1\right) \\
+    \mathcal{D}_1(d') &= \mathcal{N}\left(+\frac{d'}{2}, 1\right)
+\end{align*}
+In the Type I task, the observer is meant to determine the underlying value of $S$ on the basis of its noisy signal $x_1$. To make a response, then, it is assumed that the observer thresholds the signal $x_1$ to a criterion $c$:
+\begin{align*}
+    R = \llbracket x_1 > c\rrbracket
+\end{align*}
+Rather than modeling $x_1$ directly, it is more efficient to marginalize over it to compute the implied probability distribution over Type I responses. Where $F_{\mathcal{D}}$ is the cumulative distribution function of $\mathcal{D}$, this process entails that the observer makes Type I responses with probability:
+\begin{align*}
+    P(R=r \;\vert\; S=s) = \begin{cases}
+        1 - F_{\mathcal{D}_{s}(d')}(c) & \textrm{if }r=1 \\
+        F_{\mathcal{D}_{s}(d')}(c)  & \textrm{if }r=0
+    \end{cases}
+\end{align*}
+For example, the observer's Type I hit rate is $P(R=1 \;\vert\; S=1) = 1 - F_{\mathcal{D}_{1}(d')}(c)$ and their Type I false alarm rate is $P(R=1 \;\vert\; S=0) = 1 - F_{\mathcal{D}_{0}(d')}(c)$.
+
+
+### Type II responses
+In the Type II task, the observer is asked to determine their confidence in their Type I response. A crucial aspect of the $\meta{d'}$ model is that it does not assume that the observer has access to the same information for the Type I and Type II tasks: it could be the case that the observer gained or lost information about the stimulus after the Type I response was made. As a result, the $\meta{d'}$ model assumes that the observer makes Type II responses using a separate decision variable ([@fig-metad-model]B) following a truncated distribution (with superscripts indicating truncation bounds):
+\begin{align*}
+    x_2 \sim \begin{cases}
+        \mathcal{D}_S^{(-\infty, \meta{c}]}(\meta{d'}) & \textrm{if } R=0 \\
+        \mathcal{D}_S^{[\meta{c}, \infty)}(\meta{d'}) & \textrm{if } R=1
+\end{cases}
+\end{align*}
+This Type II decision variable has two important characteristics. First, parameters used to generate Type II responses are named with the prefix "meta-" to distinguish them from parameters used to generate the Type I responses. Second, $x_2$ is upper-bounded by $\meta{c}$ when $R=0$ and lower-bounded by $\meta{c}$ when $R=1$ so that $x_2$ cannot contradict the Type I response implied by $x_1$ (i.e., the $\meta{d'}$ model does not allow for changes of mind between Type I and Type II responses). Then, to determine the confidence level $C \in \{ 1 \ldots K\}$, the observer rates confidence using a set of $K-1$ ordered confidence criteria, $\metabf{c_2^R}$:
+\begin{align*}
+    C &= \begin{cases}
+    1+\Sigma_{k=1}^{K-1}[x_2 < \meta{c}_{2,k}^0] & \textrm{if } R=0 \\
+    1+\Sigma_{k=1}^{K-1} [x_2 > \meta{c}_{2,k}^1] & \textrm{if } R=1
+    \end{cases}
+\end{align*}
+As with the Type I response, it is most efficient to marginalize over $x_2$ to compute the probability of a Type II response given the stimulus and Type I response:
+\begin{align*}
+    P(C=c \;\vert\; S=s,R=r) &= \begin{cases}
+    \frac{F_{\mathcal{D}_s(\meta{d'})}\left(\meta{c}\right) -
+    F_{\mathcal{D}_s(\meta{d'})}\left(\meta{c_{2,1}^0}\right)}
+    {F_{\mathcal{D}_s(\meta{d'})}\left(\meta{c}\right)}
+    & \textrm{if } r=0, c=1 \\
+    \frac{F_{\mathcal{D}_s(\meta{d'})}\left(\meta{c_{2,k}^0}\right) -
+    F_{\mathcal{D}_s(\meta{d'})}\left(\meta{c_{2,k+1}^0}\right)}
+    {F_{\mathcal{D}_s(\meta{d'})}\left(\meta{c}\right)}
+    & \textrm{if } r=0, 1 \le c \le K \\
+    \frac{F_{\mathcal{D}_s(\meta{d'})}\left(\meta{c_{2,K}^0}\right)}
+    {F_{\mathcal{D}_s(\meta{d'})}\left(\meta{c}\right)}
+    & \textrm{if } r=0, c = K \\
+    \frac{F_{\mathcal{D}_s(\meta{d'})}\left(\meta{c_{2,1}^1}\right) -
+    F_{\mathcal{D}_s(\meta{d'})}\left(\meta{c}\right)}
+    {1 - F_{\mathcal{D}_s(\meta{d'})}\left(\meta{c}\right)}
+    & \textrm{if } r=1, c=1 \\
+    \frac{F_{\mathcal{D}_s(\meta{d'})}\left(\meta{c_{2,k+1}^1}\right) -
+    F_{\mathcal{D}_s(\meta{d'})}\left(\meta{c_{2,k}^}1\right)}
+    {1 - F_{\mathcal{D}_s(\meta{d'})}\left(\meta{c}\right)}
+    & \textrm{if } r=1, 1 \le c \le K \\
+    \frac{1 - F_{\mathcal{D}_s(\meta{d'})}\left(\meta{c_{2,K}^1}\right)}
+    {1 - F_{\mathcal{D}_s(\meta{d'})}\left(\meta{c}\right)}
+    & \textrm{if } r=1, c = K
+    \end{cases}
+\end{align*}
+In each of these equations, the numerator is the probability that $x_2$ lies between the thresholds for confidence level $c$, and the denominator is a normalization term to deal with the fact that $x_2$ is truncated above or below by $\meta{c}$.
+
+### Joint likelihood
+The $\meta{d'}$ model aims to explain the joint distribution of Type I and Type II responses, which can conveniently be factored into a product of the Type I and Type II response probabilities ([@fig-metad-model]C):
+\begin{align*}
+    P(R=r, C=c \;\vert\; S=s) = P(R=r \;\vert\; S=s) \; P(C=c \;\vert\; S=s, R=r) 
+\end{align*}
+Note that because this distribution is conditional on the stimulus $S$, the $\meta{d'}$ model does not model the base rate $P(S=s)$. We consider two specifications of the model likelihood. When trial-level effects are of interest, one can fit the $\meta{d'}$ model to individual trials using a categorical distribution. Where $\mathcal{L}$ is the likelihood, $\bm{\theta} = \{d', c, \meta{d'}, \meta{c}, \metabf{c_2^0}, \metabf{c_2^1}\}$, and $\bm{s}$, $\bm{r}$, and $\bm{c}$ vectors of observed stimuli, Type I responses, and Type II responses:
+\begin{align*}
+    \mathcal{L}(\bm{\theta} \;\vert\; S=\bm{s},R=\bm{r},C=\bm{c}) &= \prod_{n=1}^N P(R=r_n, C=c_n \;\vert\; S=s_n)
+\end{align*}
+However, in this formulation the number of times each conditional probability is computed is proportional to the number of trials with the same stimulus, Type I response, and Type II response. As noted by @maniscalco2014, it is often more efficient to use a multinomial likelihood over the aggregated data instead. Where $N_{s,r,c}$ is the number of trials with stimulus $S=s$, Type I response $R=r$, and Type II response $C=c$:
+\begin{align*}
+    \mathcal{L}(\bm{\theta} \;\vert\; \bm{N}) &\propto \prod_{s,r,c} P(R=r, C=c \;\vert\; S=s)^{N_{s,r,c}}
+\end{align*}
+For numerical stability, the `hmetad` package evaluates the model likelihood on the logarithmic scale. For a detailed derivation of the log likelihood used in the model fitting code, see @apx-ll.
+
+
+
+## Fixing the Type I criterion for Type II responses
+In principle, one could treat $\meta{c}$ as a free parameter reflecting the Type I criterion of the generative model for Type II responses. But to ease comparisons between $\meta{d'}$ and $d'$, in addition to comparisons across participants or experiments, it is instead customary to fix $\meta{c}$ to be similar in some respect to the Type I criterion ($c$). @maniscalco2014 advocate for two options in particular (@fig-metac). In the [absolute]{.smallcaps} model, $\meta{c}$ is simply fixed to the Type I criterion (i.e., $\meta{c} = c$). This is the parameterization used in the Hmeta-d toolbox and is the default in the `hmetad` package [@fleming2017]. In the [relative]{.smallcaps} model, $\meta{c}$ is fixed to be equal to the Type I criterion relative to the sensitivity (i.e., $\frac{\meta{c}}{\meta{d'}} = \frac{c}{d'}$). This is achieved by setting $\meta{c} = \frac{\meta{d'}}{d'}c$. This is the parameterization used by @maniscalco2014 and can be used in the `hmetad` package using the option `metac_absolute=FALSE`. Critically, @rausch2023 demonstrated that the choice between these two models is not arbitrary, as fitting data generated from the opposite generative model induces small but significant spurious dependencies of $\meta{d'}$ on other model parameters.
+
+
+```{r}
+#| label: fig-metac
+#| fig-cap: |
+#|   Two options for fixing the Type I criterion for generating Type II responses.
+#|   Under the [absolute]{.smallcaps} model, the Type I criterion is
+#|   shared between Type I and Type II observers.
+#|   Under the [relative]{.smallcaps} model, the Type I criterion is scaled by the $M$-ratio
+#|   so that the observers for the Type I and Type II decisions have
+#|   equal response bias proportional to their sensitivity.
+#| fig-width: 10
+#| fig-height: 5
+#| echo: false
+(type1_plot(evidence, limits=c(-1.5, 1.5), breaks=-1:1) /
+   (type2_plot(evidence, c=FALSE, c2=FALSE, limit=1.5, breaks=-1:1) +
+      geom_vline(aes(xintercept=c, linetype=Model),
+                 data=tibble(Model=c('Absolute', 'Relative'),
+                             c=c(first(evidence$c),
+                                 first(evidence$c) *
+                                   first(evidence$meta_d_prime) /
+                                   first(evidence$d_prime))))))
+```
+
+
+## Parameterization in the `hmetad` package
+As described above, the likelihood of the $\meta{d'}$ model is defined in terms of is parameters, $\bm{\theta} = \{d', c, \meta{d'}, \meta{c}, \metabf{c_2^0}, \metabf{c_2^1}\}$. To enable efficient model fitting, the `hmetad` package uses an alternative parameterization that derives these parameters from transformed variables.
+
+First, instead of fitting $\meta{d'}$ directly, the `hmetad` package instead models the $M$-ratio, $M = \frac{\meta{d'}}{d'}$. To ensure that $0 \le M \le \infty$, the $M$-ratio is modeled with a logarithmic link function.^[This constraint can be relaxed by setting the argument `allow_negative_values=TRUE`, which models $M$-ratio on its natural scale (i.e., using the identity link function).] In this parameterization, one can compute $\meta{d'}$ using the transformation $\meta{d'} = Md'$.
+
+Second, in the original parameterization, the Type II criteria are ordinally constrained. Specifically, $\metabf{c_2^0}$ is constrained to be decreasing and below $\meta{c}$, whereas $\metabf{c_2^1}$ is constrained to be increasing and above $\meta{c}$:
+$$\meta{c_{2,K}^0} \le \ldots \le \meta{c_{2,1}^0} \le\meta{c} \le \meta{c_{2,1}^1} \le \ldots \le \meta{c_{2,K}^1}$$
+Previous implementations of the model either used constrained optimization [@maniscalco2014] or sorted the Type II criteria [@fleming2017] to meet this constraint. As a more flexible alternative, the `hmetad` package instead uses the positive ordered transform to model the \emph{differences} between successive Type II criteria. Where $K$ is the number of confidence levels, $K-1$ is the number of confidence criteria per response, we define $\delta\meta{c_{2,k}^0}$ and $\delta\meta{c_{2,k}^1}$ as the distances between Type II criteria for $R=0$ and $R=1$:
+\begin{align*}
+    \delta\meta{c_{2,k}^0} = \begin{cases}
+        \meta{c} - \meta{c_{2,1}^0} & \textrm{if } k = 1 \\
+        \meta{c_{2,k-1}^0}  - \meta{c_{2,k}^0} & \textrm{if } 2 \le k \le K-1
+    \end{cases} \\
+    \delta\meta{c_{2,k}^1} = \begin{cases}
+        \meta{c_{2,1}^1} - \meta{c} & \textrm{if } k = 1 \\
+        \meta{c_{2,k}^1} - \meta{c_{2,k-1}^1} & \textrm{if } 2 \le k \le K-1
+    \end{cases}
+\end{align*}
+Under this parameterization, the actual Type II criteria are computed using the inverse transform:
+\begin{align*}
+    \metabf{c_2^0} &= \meta{c} - \textrm{cumulative\_sum}\!\left(\mathbf{\delta}\metabf{c_2^0}\right) \\
+    \metabf{c_2^1} &= \meta{c} + \textrm{cumulative\_sum}\!\left(\mathbf{\delta}\metabf{c_2^1}\right)
+\end{align*}
+As with the $M$-ratio, the distances $\delta\meta{c_{2,k}^0}$ and $\delta\meta{c_{2,k}^1}$ are modeled with a logarithmic link function to ensure that they are positive.
+
+
+### Including predictors
+The primary benefit of the `hmetad` package is that it specifies the $\meta{d'}$ model as a generalized linear model, allowing users to specify model parameters as a linear function of observed variables. For instance, where $\bm{X_\varphi}$ and $\beta_\varphi$ are the design matrix and coefficient vector for each parameter $\varphi$, the `hmetad` package uses the linear model:
+\begin{align*}
+    \log(M) &= \bm{X_M}\beta_M \\
+    d' &= \bm{X_{d'}}\beta_{d'} \\
+    c &= \bm{X_c}\beta_c \\
+    \log(\delta\meta{c_{2,k}^0}) &= \bm{X_{\delta\metabf{c_{2,k}^0}}}\beta_{\delta\meta{c_{2,k}^0}} \\
+    \log(\delta\meta{c_{2,k}^1}) &= \bm{X_{\delta\metabf{c_{2,k}^1}}}\beta_{\delta\meta{c_{2,k}^1}}
+\end{align*}
+Importantly, the `hmetad` package allows for the design matrices to differ for each model parameter. As with any other `brms` family, it is also possible to include multilevel (or hierarchical) structure [@buerkner2018]. Where $\bm{Z_\varphi}$ and $\gamma_\varphi$ are the group-level design matrix and coefficient vector for each parameter $\varphi$:
+\begin{align*}
+    \log(M) &= \bm{X_M}\beta_M \;+\; \bm{Z_M}\gamma_M \\
+    d' &= \bm{X_{d'}}\beta_{d'} \;+\; \bm{Z_{d'}}\gamma_{d'} \\
+    c &= \bm{X_c}\beta_c \;+\; \bm{Z_c}\gamma_c \\
+    \log(\delta\meta{c_{2,k}^0}) &= \bm{X_{\delta\metabf{c_{2,k}^0}}}\beta_{\delta\meta{c_{2,k}^0}} \;+\; \bm{Z_{\delta\metabf{c_{2,k}^0}}}\gamma_{\delta\meta{c_{2,k}^0}} \\
+    \log(\delta\meta{c_{2,k}^1}) &= \bm{X_{\delta\metabf{c_{2,k}^1}}}\beta_{\delta\meta{c_{2,k}^1}} \;+\; \bm{Z_{\delta\metabf{c_{2,k}^1}}}\gamma_{\delta\meta{c_{2,k}^1}}
+\end{align*}
+Although a full description of all of the different kinds of predictors allowed in `brms` is outside the scope of this article, `brms` also allows for non-linear terms, monotonic predictors, autocorrelation terms, and predictors with measurement error [@buerkner2017; @buerkner2018; @buerkner2020].

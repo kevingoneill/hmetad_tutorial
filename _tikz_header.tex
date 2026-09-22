@@ -1,0 +1,30 @@
+\definecolor{UCL_dark_purple}{RGB}{54,26,84}
+\definecolor{UCL_off_white}{RGB}{250,250,250}
+\definecolor{UCL_paper_white}{RGB}{255,255,255}
+\definecolor{UCL_bright_purple}{RGB}{153,59,255}
+\definecolor{UCL_mid_purple}{RGB}{186,130,255}
+\definecolor{UCL_pale_purple}{RGB}{221,189,255}
+\definecolor{UCL_light_purple}{RGB}{238,222,255}
+\definecolor{UCL_heritage_blue}{RGB}{48,214,255}
+
+\usetikzlibrary{positioning, arrows, arrows.meta, shapes, bayesnet}
+\tikzset{
+  every node/.style={
+    draw, align=center, minimum size=1cm, fill=black!20!white, color=black!20!white, text=black
+  },
+  every edge/.style={-Triangle[], draw, color=black},
+  image/.style = {
+    draw=none, fill=none,
+    inner sep=0, outer sep=0,
+    minimum size=1cm, align=none
+  },
+  hidden/.style = {
+    draw=none, fill=none, opacity=0
+  },
+  unboxed/.style = {
+    draw=none, fill=none, text=black
+  },
+  obs/.style = {
+    draw=none, fill=black!20!white, text=black
+  }
+}

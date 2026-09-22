@@ -1,7 +1,5 @@
 ---
-title: | 
-  Quantifying metacognitive performance \
-  with the `hmetad` package
+title: Quantifying metacognitive performance with the `hmetad` package in R
 shorttitle: "Quantifying metacognitive performance with `hmetad`"
 author:
   - name: Kevin O'Neill
@@ -30,35 +28,65 @@ author:
       - ref: ep
       - ref: icn
 abstract: "A longstanding goal in metacognition research is the quantification of confidence-related performance independently from task-related performance. While there is now a proliferation of generative models of confidence in numerous psychological tasks, the meta-$d'$ model remains a popular approach to estimating metacognitive sensitivity and metacognitive bias in the framework of Signal Detection Theory. However, as research questions in metacognition research increase in complexity, it remains an ongoing challenge to develop extensions of the meta-$d'$ model built to deal with longitudinal, repeated-measures, or other  complex experimental designs. Here we introduce the open-source R package `hmetad`, which allows users to easily fit the meta-$d'$ model for a wide range of experimental designs using a familiar formula syntax. We also review how the meta-$d'$ model can be validated in a Bayesian workflow focused on a range of posterior estimates. Overall, the `hmetad` package offers a comprehensive interface to fitting, evaluating, and visualizing signal detection theoretic models of metacognitive performance."
+keywords:
+  - metacognition
+  - Bayesian statistics
+  - multilevel modeling
 ---
 
-<!-- The introduction should not have a level-1 heading such as Introduction. -->
+:::{.content-visible unless-format="pdf"}
+::::{.hidden}
+{{< include _preamble.tex >}}
+::::
+:::
+
+
+```{r}
+#| label: setup
+#| cache: false
+#| echo: false
+#| include: false
+if (system.file(package="hmetad") == "") {
+  pak::pak("metacoglab/hmetad")
+}
+
+library(tidyverse)
+library(tidybayes)
+library(posterior)
+library(hmetad)
+library(bayestestR)
+library(distributional)
+library(ggdist)
+library(paletteer)
+library(patchwork)
+library(paletteer)
+library(jsonlite) # for conditional rendering
+
+source('_utils.R')
+```
+
+{{< include _introduction.qmd >}}
+
 
 # The $\meta{d'}$ model
-
-{{< include metad_model.qmd >}}
+{{< include _metad_model.qmd >}}
 
 
 # Fitting the $\meta{d'}$ model in R
+{{< include _model_fitting.qmd >}}
 
-{{< include model_fitting.qmd >}}
 
 # Discussion
-
+{{< include _discussion.qmd >}}
 
 
 # References
-
-<!-- References will auto-populate in the refs div below -->
-
 ::: {#refs}
 :::
 
 
 
 # Log likelihood of the $\meta{d'}$ model {#apx-ll}
-{{< include appendix_ll.qmd >}}
-
-# Second appendix section {#apx-2}
+{{< include _appendix_ll.qmd >}}
 
 
