@@ -19,41 +19,82 @@ While it is designed for experimental paradigms with separate Type I and Type II
 
 
 ::: {#fig-paradigm}
+::::{.content-visible unless-format="pdf"}
 ```{.tikz}
-%%| additionalPackages: \usepackage{cmbright}
 \include{_tikz_header.tex}
 \begin{tikzpicture}
-	\node[image, minimum size=2cm] (stimulus) { \includegraphics[width=2cm]{figures/gabor.png} };
-	\node[minimum size=2cm] (response) [right = of stimulus] {
-		Present? \\\vspace{-.15cm}\\
-		\textbf{N \hspace{.25em} Y}
-	};
-	\node[minimum size=2cm] (confidence) [right = of response] { 
-		Confidence? \\\vspace{-.15cm}\\
-		\textbf{1 \hspace{.1em} 2 \hspace{.1em} 3 \hspace{.1em} 4}
-	};
-	\path (stimulus) edge (response);
-	\path (response) edge (confidence);
-    
-    \node[unboxed] (type1) [below = 0.1cm of response] { Type I\\Response };
-    \node[unboxed] (type2) [below = 0.1cm of confidence] { Type II\\Response };
-    
-    \node[image, minimum size=2cm] (stimulus2) [right = 2cm of confidence] { \includegraphics[width=2cm]{figures/gabor.png} };
-	\node[minimum size=2cm] (response2) [right = of stimulus2] {
-		Direction? \\\vspace{-.25cm}\\
-		L \hspace{1.33cm} R \\\vspace{-.25cm}\\
-        \textbf{
-          4 \hspace{.025em} 3 \hspace{.025em} 2 \hspace{.025em} 1 \hspace{.2em} 
-          1 \hspace{.025em} 2 \hspace{.025em} 3 \hspace{.025em} 4
-        }
-	};
-	\path (stimulus2) edge (response2);
-    
-    \node[unboxed] (type2) [below = 0.1cm of response2] { Joint Type I/Type II\\Response };
-    \node[unboxed] (a) [above left = .15cm of stimulus] {\Large \textbf{A}};
-    \node[unboxed] (b) [above left = .15cm of stimulus2] {\Large \textbf{B}};
+  \node[image, minimum size=2cm] (stimulus) { \includegraphics[width=2cm]{_figures/gabor.png} };
+  \node[minimum size=2cm] (response) [right = of stimulus] {
+    Present? \\\vspace{-.15cm}\\
+    \textbf{N \hspace{.25em} Y}
+  };
+  \node[minimum size=2cm] (confidence) [right = of response] { 
+    Confidence? \\\vspace{-.15cm}\\
+    \textbf{1 \hspace{.1em} 2 \hspace{.1em} 3 \hspace{.1em} 4}
+  };
+  \path (stimulus) edge (response);
+  \path (response) edge (confidence);
+  
+  \node[unboxed] (type1) [below = 0.1cm of response] { Type I\\Response };
+  \node[unboxed] (type2) [below = 0.1cm of confidence] { Type II\\Response };
+  
+  \node[image, minimum size=2cm] (stimulus2) [right = 2cm of confidence] { \includegraphics[width=2cm]{_figures/gabor.png} };
+  \node[minimum size=2cm] (response2) [right = of stimulus2] {
+    Direction? \\\vspace{-.25cm}\\
+    L \hspace{1.33cm} R \\\vspace{-.25cm}\\
+    \textbf{
+      4 \hspace{.025em} 3 \hspace{.025em} 2 \hspace{.025em} 1 \hspace{.2em} 
+      1 \hspace{.025em} 2 \hspace{.025em} 3 \hspace{.025em} 4
+    }
+  };
+  \path (stimulus2) edge (response2);
+  
+  \node[unboxed] (type2) [below = 0.1cm of response2] { Joint Type I/Type II\\Response };
+  \node[unboxed] (a) [above left = .15cm of stimulus] {\Large \textbf{A}};
+  \node[unboxed] (b) [above left = .15cm of stimulus2] {\Large \textbf{B}};
 \end{tikzpicture}
+
 ```
+::::
+
+::::{.content-visible when-format="pdf"}
+```{.tikz}
+\include{_tikz_header.tex}
+\resizebox{\linewidth}{!}{
+\begin{tikzpicture}
+  \node[image, minimum size=2cm] (stimulus) { \includegraphics[width=2cm]{_figures/gabor.png} };
+  \node[minimum size=2cm] (response) [right = of stimulus] {
+    Present? \\\vspace{-.15cm}\\
+    \textbf{N \hspace{.25em} Y}
+  };
+  \node[minimum size=2cm] (confidence) [right = of response] { 
+    Confidence? \\\vspace{-.15cm}\\
+    \textbf{1 \hspace{.1em} 2 \hspace{.1em} 3 \hspace{.1em} 4}
+  };
+  \path (stimulus) edge (response);
+  \path (response) edge (confidence);
+  
+  \node[unboxed] (type1) [below = 0.1cm of response] { Type I\\Response };
+  \node[unboxed] (type2) [below = 0.1cm of confidence] { Type II\\Response };
+  
+  \node[image, minimum size=2cm] (stimulus2) [right = 2cm of confidence] { \includegraphics[width=2cm]{_figures/gabor.png} };
+  \node[minimum size=2cm] (response2) [right = of stimulus2] {
+    Direction? \\\vspace{-.25cm}\\
+    L \hspace{1.33cm} R \\\vspace{-.25cm}\\
+    \textbf{
+      4 \hspace{.025em} 3 \hspace{.025em} 2 \hspace{.025em} 1 \hspace{.2em} 
+      1 \hspace{.025em} 2 \hspace{.025em} 3 \hspace{.025em} 4
+    }
+  };
+  \path (stimulus2) edge (response2);
+  
+  \node[unboxed] (type2) [below = 0.1cm of response2] { Joint Type I/Type II\\Response };
+  \node[unboxed] (a) [above left = .15cm of stimulus] {\Large \textbf{A}};
+  \node[unboxed] (b) [above left = .15cm of stimulus2] {\Large \textbf{B}};
+\end{tikzpicture}
+}
+```
+::::
 
 Two example tasks amenable to analysis with the $\meta{d'}$ model. *(A)* A signal detection task with a separate Type I and Type II response. *(B)* A two-alternative forced-choice (2AFC) task with a combined Type I/Type I response. In both tasks, the set of responses made on the trial can be decomposed into a binary Type I response and an ordinal Type II response.
 :::
@@ -233,7 +274,7 @@ As described above, the likelihood of the $\meta{d'}$ model is defined in terms 
 First, instead of fitting $\meta{d'}$ directly, the `hmetad` package instead models the $M$-ratio, $M = \frac{\meta{d'}}{d'}$. To ensure that $0 \le M \le \infty$, the $M$-ratio is modeled with a logarithmic link function.^[This constraint can be relaxed by setting the argument `allow_negative_values=TRUE`, which models $M$-ratio on its natural scale (i.e., using the identity link function).] In this parameterization, one can compute $\meta{d'}$ using the transformation $\meta{d'} = Md'$.
 
 Second, in the original parameterization, the Type II criteria are ordinally constrained. Specifically, $\metabf{c_2^0}$ is constrained to be decreasing and below $\meta{c}$, whereas $\metabf{c_2^1}$ is constrained to be increasing and above $\meta{c}$:
-$$\meta{c_{2,K}^0} \le \ldots \le \meta{c_{2,1}^0} \le\meta{c} \le \meta{c_{2,1}^1} \le \ldots \le \meta{c_{2,K}^1}$$
+$$\meta{c_{2,K-1}^0} \le \ldots \le \meta{c_{2,1}^0} \le\meta{c} \le \meta{c_{2,1}^1} \le \ldots \le \meta{c_{2,K-1}^1}$$
 Previous implementations of the model either used constrained optimization [@maniscalco2014] or sorted the Type II criteria [@fleming2017] to meet this constraint. As a more flexible alternative, the `hmetad` package instead uses the positive ordered transform to model the \emph{differences} between successive Type II criteria. Where $K$ is the number of confidence levels, $K-1$ is the number of confidence criteria per response, we define $\delta\meta{c_{2,k}^0}$ and $\delta\meta{c_{2,k}^1}$ as the distances between Type II criteria for $R=0$ and $R=1$:
 \begin{align*}
     \delta\meta{c_{2,k}^0} = \begin{cases}

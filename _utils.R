@@ -121,7 +121,3 @@ type2_plot <- function(evidence, response='both',
   p
 }
 
-
-quarto_format <- function() {
-  fromJSON(Sys.getenv("QUARTO_EXECUTE_INFO"))$format$identifier$`target-format`
-}

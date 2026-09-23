@@ -8,7 +8,7 @@ And for the multinomial likelihood:
 \begin{align*}
     \ell(\bm{\theta} \;\vert\; \bm{N}) &= \log \mathcal{L}(\bm{\theta} \;\vert\; \bm{N}) \\
     &\propto \log \prod_{s,r,c} P(R=r, C=c \;\vert\; S=s)^{N_{s,r,c}} \\
-    &\propto \sum_{s,r,c} N_{s,r,c} \log P(R=r, C=c \;\vert\; S=s)
+    &= \sum_{s,r,c} N_{s,r,c} \log P(R=r, C=c \;\vert\; S=s)
 \end{align*}
 In both cases, the likelihood reduces to a sum over the log joint probability of a Type I and Type II response given a stimulus. To further increase numerical stability, the `hmetad` package also computes these probabilities on the logarithmic scale. Where $F_{\mathcal{D}}$ is the cumulative distribution function of $\mathcal{D}$ and $\bar{F}_{\mathcal{D}}$ is its complementary cumulative distribution function:
 \begin{align*}

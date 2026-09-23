@@ -13,15 +13,19 @@ format:
     fig-width: 10
     fig-height: 4
     fig-dpi: 600
+#    tikz:
+#      embed: inline
   apaquarto-pdf:
     documentmode: doc
     fontsize: 10pt
-    keep-tex: true
+    keep-tex: false
     fig-format: pdf
     fig-width: 10
     fig-height: 4
     fig-dpi: 600
     include-in-header: _preamble.tex
+    tikz:
+      latex-passthrough: true
   apaquarto-docx: default
 #pdf-engine: lualatex
 
@@ -53,3 +57,8 @@ knitr:
 # enable tikz figures
 filters:
   - tikz
+
+tikz:
+  cache: false
+  save-tex: false
+  svg-command: "pdf2svg {input} {output}"  # use pdf2svg because inkscape breaks fonts
