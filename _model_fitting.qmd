@@ -582,6 +582,7 @@ summary(m)
 
 ```{r}
 #| label: model-summary2
+#| echo: false
 capture.output(print(m))[14:60] |>
   writeLines()
 ```

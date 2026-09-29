@@ -96,7 +96,7 @@ While it is designed for experimental paradigms with separate Type I and Type II
 ```
 ::::
 
-Two example tasks amenable to analysis with the $\meta{d'}$ model. *(A)* A signal detection task with a separate Type I and Type II response. *(B)* A two-alternative forced-choice (2AFC) task with a combined Type I/Type I response. In both tasks, the set of responses made on the trial can be decomposed into a binary Type I response and an ordinal Type II response.
+Two example tasks amenable to analysis with the $\meta{d'}$ model. *(A)* A signal detection task with a separate Type I and Type II response. *(B)* A two-alternative forced-choice (2AFC) task with a combined Type I/Type II response. In both tasks, the set of responses made on the trial can be decomposed into a binary Type I response and an ordinal Type II response.
 :::
 
 
