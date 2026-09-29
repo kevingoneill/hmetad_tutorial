@@ -231,10 +231,10 @@ window.Quarto = {
 <section id="abstract" class="level1 unnumbered unlisted AuthorNote">
 <h1 class="unnumbered unlisted AuthorNote">Abstract</h1>
 <div class="AbstractFirstParagraph">
-<p>A longstanding goal in metacognition research is the quantification of confidence-related performance independently from task-related performance. While there is now a proliferation of generative models of confidence in numerous psychological tasks, the meta-<span class="math inline">d'</span> model remains a popular approach to estimating metacognitive sensitivity and metacognitive bias in the framework of Signal Detection Theory. However, as research questions in metacognition research increase in complexity, it remains an ongoing challenge to develop extensions of the meta-<span class="math inline">d'</span> model built to deal with longitudinal, repeated-measures, or other complex experimental designs. Here we introduce the open-source R package <code>hmetad</code>, which allows users to easily fit the meta-<span class="math inline">d'</span> model for a wide range of experimental designs using a familiar formula syntax. We also review how the meta-<span class="math inline">d'</span> model can be validated in a Bayesian workflow focused on a range of posterior estimates. Overall, the <code>hmetad</code> package offers a comprehensive interface to fitting, evaluating, and visualizing signal detection theoretic models of metacognitive performance.</p>
+<p>A longstanding goal in metacognition research is the quantification of confidence-related performance independently from task-related performance. While there is now a proliferation of generative models of confidence in numerous psychological tasks, the meta-<span class="math inline">d'</span> model remains a popular approach to estimating metacognitive sensitivity and metacognitive bias in the framework of Signal Detection Theory. However, as questions in metacognition research increase in complexity, it remains an ongoing challenge to develop extensions of the meta-<span class="math inline">d'</span> model built to deal with longitudinal, repeated-measures, or other complex experimental designs. Here we introduce the open-source R package <code>hmetad</code>, which allows users to easily fit the meta-<span class="math inline">d'</span> model for a wide range of experimental designs using a familiar formula syntax. We also review how the meta-<span class="math inline">d'</span> model can be validated in a Bayesian workflow focused on a range of posterior estimates. Overall, the <code>hmetad</code> package offers a comprehensive interface to fitting, evaluating, and visualizing signal detection theoretic models of metacognitive performance.</p>
 </div>
 <p><em>Keywords</em>: metacognition, Bayesian statistics, multilevel modeling</p>
-<p><em>Word Count</em>: 11446</p>
+<p><em>Word Count</em>: 11443</p>
 <br>
 </section>
 <section id="firstheader" class="level1 title unnumbered">
@@ -266,14 +266,14 @@ window.Quarto = {
        K+1-C &amp; \textrm{if } R=0 \\
     \end{cases}
 \end{align*}</span></p>
-<div id="fig-paradigm" class="quarto-float quarto-figure quarto-figure-center FigureWithoutNote" prefix="" data-fignum="1" data-custom-style="FigureWithoutNote">
+<div id="fig-paradigm" class="quarto-float quarto-figure quarto-figure-center FigureWithoutNote" data-fignum="1" prefix="" data-custom-style="FigureWithoutNote">
 <figure class="quarto-float quarto-float-fig figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-fig" id="fig-paradigm-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="FigureTitle" data-custom-style="FigureTitle">
 <p>Figure&nbsp;1</p>
 </div>
 <div class="Caption" data-custom-style="Caption">
-<p>Two example tasks amenable to analysis with the <span class="math inline">\textrm{meta-}d'</span> model. <em>(A)</em> A signal detection task with a separate Type I and Type II response. <em>(B)</em> A two-alternative forced-choice (2AFC) task with a combined Type I/Type I response. In both tasks, the set of responses made on the trial can be decomposed into a binary Type I response and an ordinal Type II response.</p>
+<p>Two example tasks amenable to analysis with the <span class="math inline">\textrm{meta-}d'</span> model. <em>(A)</em> A signal detection task with a separate Type I and Type II response. <em>(B)</em> A two-alternative forced-choice (2AFC) task with a combined Type I/Type II response. In both tasks, the set of responses made on the trial can be decomposed into a binary Type I response and an ordinal Type II response.</p>
 </div>
 </figcaption>
 <div aria-describedby="fig-paradigm-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -287,7 +287,7 @@ window.Quarto = {
 <p>Given the design above, the <span class="math inline">\textrm{meta-}d'</span> model aims to explain the distribution of Type I and Type II responses. Early descriptions of the model stressed that it was not intended to be a generative model; initially, it was simply meant to describe (a) the relation between Type I responses and the stimulus, and (b) the relation between Type II responses and the accuracy of the Type I responses. However, over time this characterization has shifted to an understanding that the <span class="math inline">\textrm{meta-}d'</span> model is sensitive to a number of generative assumptions, indicating that it is not in fact a theory-free model <span class="citation" data-cites="guggenmos2021 rausch2023">(<a href="#ref-guggenmos2021" role="doc-biblioref">Guggenmos, 2021</a>; <a href="#ref-rausch2023" role="doc-biblioref">Rausch et al., 2026</a>)</span>. Keeping this in mind, we next overview the statistical process underlying the <span class="math inline">\textrm{meta-}d'</span> model <a href="#fig-metad-model" class="quarto-xref" aria-expanded="false">Figure&nbsp;2</a>, identifying relevant assumptions along the way.</p>
 <div class="cell FigureWithoutNote" data-custom-style="FigureWithoutNote">
 <div class="cell-output-display">
-<div id="fig-metad-model" class="quarto-float quarto-figure quarto-figure-center" prefix="" data-fignum="2">
+<div id="fig-metad-model" class="quarto-float quarto-figure quarto-figure-center" data-fignum="2" prefix="">
 <figure class="quarto-float quarto-float-fig figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-fig" id="fig-metad-model-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="FigureTitle" data-custom-style="FigureTitle">
@@ -373,7 +373,7 @@ window.Quarto = {
 <p>In principle, one could treat <span class="math inline">\textrm{meta-}c</span> as a free parameter reflecting the Type I criterion of the generative model for Type II responses. But to ease comparisons between <span class="math inline">\textrm{meta-}d'</span> and <span class="math inline">d'</span>, in addition to comparisons across participants or experiments, it is instead customary to fix <span class="math inline">\textrm{meta-}c</span> to be similar in some respect to the Type I criterion (<span class="math inline">c</span>). <span class="citation" data-cites="maniscalco2014">Maniscalco and Lau (<a href="#ref-maniscalco2014" role="doc-biblioref">2014</a>)</span> advocate for two options in particular (<a href="#fig-metac" class="quarto-xref" aria-expanded="false">Figure&nbsp;3</a>). In the <span class="smallcaps">absolute</span> model, <span class="math inline">\textrm{meta-}c</span> is simply fixed to the Type I criterion (i.e., <span class="math inline">\textrm{meta-}c = c</span>). This is the parameterization used in the Hmeta-d toolbox and is the default in the <code>hmetad</code> package <span class="citation" data-cites="fleming2017">(<a href="#ref-fleming2017" role="doc-biblioref">Fleming, 2017</a>)</span>. In the <span class="smallcaps">relative</span> model, <span class="math inline">\textrm{meta-}c</span> is fixed to be equal to the Type I criterion relative to the sensitivity (i.e., <span class="math inline">\frac{\textrm{meta-}c}{\textrm{meta-}d'} = \frac{c}{d'}</span>). This is achieved by setting <span class="math inline">\textrm{meta-}c = \frac{\textrm{meta-}d'}{d'}c</span>. This is the parameterization used by <span class="citation" data-cites="maniscalco2014">Maniscalco and Lau (<a href="#ref-maniscalco2014" role="doc-biblioref">2014</a>)</span> and can be used in the <code>hmetad</code> package using the option <code>metac_absolute=FALSE</code>. Critically, <span class="citation" data-cites="rausch2023">Rausch et al. (<a href="#ref-rausch2023" role="doc-biblioref">2026</a>)</span> demonstrated that the choice between these two models is not arbitrary, as fitting data generated from the opposite generative model induces small but significant spurious dependencies of <span class="math inline">\textrm{meta-}d'</span> on other model parameters.</p>
 <div class="cell FigureWithoutNote" data-custom-style="FigureWithoutNote">
 <div class="cell-output-display">
-<div id="fig-metac" class="quarto-float quarto-figure quarto-figure-center" prefix="" data-fignum="3">
+<div id="fig-metac" class="quarto-float quarto-figure quarto-figure-center" data-fignum="3" prefix="">
 <figure class="quarto-float quarto-float-fig figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-fig" id="fig-metac-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="FigureTitle" data-custom-style="FigureTitle">
@@ -682,7 +682,7 @@ Parameters: mu, dprime, c, metac2zero1diff, metac2zero2diff,
 <p>As a further check, we can compute the implied Type II response probabilities using the analogous function <code>type2_rvars(m.prior, newdata, re_formula = NA, by_correct = TRUE)</code> (see <a href="#fig-type2-prior" class="quarto-xref" aria-expanded="false">Figure&nbsp;4</a>A). From this figure, it is clear that our priors put roughly equal probability on each response for each possible stimulus with a slight preference for accurate but low confidence responses, which is a reasonable start. Critically, it is necessary to tune the prior for the Type II criteria through iterative refinement and visualization, because models with different number of confidence criteria require different parameter values to produce roughly uniform confidence responding. As an example, if we use the same prior for a hypothetical dataset with only two confidence levels, the resulting prior predictions strongly favor high-confidence responding (<a href="#fig-type2-prior" class="quarto-xref" aria-expanded="false">Figure&nbsp;4</a>B). In this scenario, it would be sensible to increase the prior mean of the confidence criteria until the prior predictions more closely resembled our expectations.</p>
 <div class="cell FigureWithNote" data-apa-note="Points and intervals indicate prior medians and 95% credible intervals. Smoothed bars depict complementary cumulative distribution function of prior distributions." data-custom-style="FigureWithNote">
 <div class="cell-output-display">
-<div id="fig-type2-prior" class="quarto-float quarto-figure quarto-figure-center" prefix="" data-fignum="4">
+<div id="fig-type2-prior" class="quarto-float quarto-figure quarto-figure-center" data-fignum="4" prefix="">
 <figure class="quarto-float quarto-float-fig figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-fig" id="fig-type2-prior-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="FigureTitle" data-custom-style="FigureTitle">
@@ -846,7 +846,7 @@ http://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup</code><
 </div>
 <div class="cell FigureWithNote" data-apa-note="Bars depict empirical probabilities and points and intervals depict posterior medians and 95% credible intervals." data-custom-style="FigureWithNote">
 <div class="cell-output-display">
-<div id="fig-epred" class="quarto-float quarto-figure quarto-figure-center" prefix="" data-fignum="5">
+<div id="fig-epred" class="quarto-float quarto-figure quarto-figure-center" data-fignum="5" prefix="">
 <figure class="quarto-float quarto-float-fig figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-fig" id="fig-epred-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="FigureTitle" data-custom-style="FigureTitle">
@@ -890,7 +890,7 @@ http://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup</code><
 </div>
 <div class="cell FigureWithNote" data-apa-note="Bars depict complementary cumulative posterior probabilities and points depict empirical probabilities." data-custom-style="FigureWithNote">
 <div class="cell-output-display">
-<div id="fig-roc2" class="quarto-float quarto-figure quarto-figure-center" prefix="" data-fignum="6">
+<div id="fig-roc2" class="quarto-float quarto-figure quarto-figure-center" data-fignum="6" prefix="">
 <figure class="quarto-float quarto-float-fig figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-fig" id="fig-roc2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="FigureTitle" data-custom-style="FigureTitle">
@@ -918,8 +918,6 @@ http://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup</code><
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">capture.output</span>(<span class="fu">print</span>(m))[<span class="dv">14</span><span class="sc">:</span><span class="dv">60</span>] <span class="sc">|&gt;</span></span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">writeLines</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Multilevel Hyperparameters:
 ~participant (Number of levels: 453) 
@@ -974,16 +972,16 @@ Regression Coefficients:
 <p>Looking at the model intercepts, we see generally suboptimal metacognitive efficiency (with <span class="math inline">\log(M) &lt; 0</span>), good task performance overall (with <span class="math inline">d' \approx 1.3</span>), and a slight bias for the left response option (with <span class="math inline">c &lt; 0</span>). A preliminary inspection of the regression coefficients suggests that there are no effects of anxious depression on <span class="math inline">M</span>-ratio, <span class="math inline">d'</span>, or <span class="math inline">c</span>. In contrast, the distances between confidence criteria appear to increase with anxious depression, at least for the first confidence level.</p>
 <p>We can first visualize the group-level estimate of <span class="math inline">M</span>-ratio compared to its prior distribution:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>draws.mratio <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">linpred_rvars_metad</span>(m, newdata, <span class="at">re_formula =</span> <span class="cn">NA</span>) <span class="sc">|&gt;</span></span>
-<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"posterior"</span>),</span>
-<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">linpred_rvars_metad</span>(m.prior, newdata, <span class="at">re_formula =</span> <span class="cn">NA</span>) <span class="sc">|&gt;</span></span>
-<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"prior"</span>)</span>
-<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>draws.mratio <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">linpred_rvars_metad</span>(m, newdata, <span class="at">re_formula =</span> <span class="cn">NA</span>) <span class="sc">|&gt;</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"posterior"</span>),</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">linpred_rvars_metad</span>(m.prior, newdata, <span class="at">re_formula =</span> <span class="cn">NA</span>) <span class="sc">|&gt;</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"prior"</span>)</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell FigureWithoutNote" data-custom-style="FigureWithoutNote">
 <div class="cell-output-display">
-<div id="fig-mratio" class="quarto-float quarto-figure quarto-figure-center" prefix="" data-fignum="7">
+<div id="fig-mratio" class="quarto-float quarto-figure quarto-figure-center" data-fignum="7" prefix="">
 <figure class="quarto-float quarto-float-fig figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-fig" id="fig-mratio-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="FigureTitle" data-custom-style="FigureTitle">
@@ -1005,9 +1003,9 @@ Regression Coefficients:
 </div>
 <p>Next, in order to interpret the regression coefficients further, we will compute model predictions at varying levels of anxious depression:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>newdata.ad <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">anxious_depression =</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">2</span>, <span class="dv">3</span>, <span class="at">by =</span> .<span class="dv">25</span>))</span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>draws.linpred <span class="ot">&lt;-</span> <span class="fu">linpred_rvars_metad</span>(m, newdata.ad, <span class="at">re_formula =</span> <span class="cn">NA</span>, <span class="at">pivot_longer =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>draws.linpred</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>newdata.ad <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">anxious_depression =</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">2</span>, <span class="dv">3</span>, <span class="at">by =</span> .<span class="dv">25</span>))</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>draws.linpred <span class="ot">&lt;-</span> <span class="fu">linpred_rvars_metad</span>(m, newdata.ad, <span class="at">re_formula =</span> <span class="cn">NA</span>, <span class="at">pivot_longer =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>draws.linpred</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 189 × 4
 # Groups:   .row, anxious_depression, .variable [189]
@@ -1028,7 +1026,7 @@ Regression Coefficients:
 </div>
 <div class="cell FigureWithNote" data-apa-note="Lines indicate posterior medians and ribbons indicate 95% posterior quantiles. Points indicate posterior medians of participant-level estimates." data-custom-style="FigureWithNote">
 <div class="cell-output-display">
-<div id="fig-linpred-mh" class="quarto-float quarto-figure quarto-figure-center" prefix="" data-fignum="8">
+<div id="fig-linpred-mh" class="quarto-float quarto-figure quarto-figure-center" data-fignum="8" prefix="">
 <figure class="quarto-float quarto-float-fig figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-fig" id="fig-linpred-mh-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="FigureTitle" data-custom-style="FigureTitle">
@@ -1052,11 +1050,11 @@ Regression Coefficients:
 </div>
 <p>Shown in <a href="#fig-linpred-mh" class="quarto-xref" aria-expanded="false">Figure&nbsp;8</a>, it is clear that the relationships between mental health and <span class="math inline">M</span>-ratio, <span class="math inline">d'</span>, and <span class="math inline">c</span> are small if non-existent. In contrast, there appear to be effects on the confidence criteria, however this is complicated because (a) there are two confidence criteria for each Type I response, (b) the confidence criteria for each response are ordered in opposite directions, and (c) effects on the the confidence criteria include potential effects on the Type I criterion, <span class="math inline">c</span>. To simplify things further, we can compute a measure of metacognitive bias derived from the confidence criteria known as meta-<span class="math inline">\Delta</span> <span class="citation" data-cites="oneill2026">(<a href="#ref-oneill2026" role="doc-biblioref">O’Neill et al., 2026</a>)</span>:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>draws.bias <span class="ot">&lt;-</span> <span class="fu">metacognitive_bias_rvars</span>(</span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  m, newdata.ad,</span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">re_formula =</span> <span class="cn">NA</span>, <span class="at">by_response =</span> <span class="cn">FALSE</span></span>
-<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>draws.bias</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>draws.bias <span class="ot">&lt;-</span> <span class="fu">metacognitive_bias_rvars</span>(</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  m, newdata.ad,</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">re_formula =</span> <span class="cn">NA</span>, <span class="at">by_response =</span> <span class="cn">FALSE</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>draws.bias</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 21 × 3
 # Groups:   .row, anxious_depression [21]
@@ -1077,7 +1075,7 @@ Regression Coefficients:
 </div>
 <div class="cell FigureWithNote" data-apa-note="Lines indicate posterior medians and ribbons indicate 95% posterior quantiles. Points indicate posterior medians of participant-level estimates." data-custom-style="FigureWithNote">
 <div class="cell-output-display">
-<div id="fig-bias" class="quarto-float quarto-figure quarto-figure-center" prefix="" data-fignum="9">
+<div id="fig-bias" class="quarto-float quarto-figure quarto-figure-center" data-fignum="9" prefix="">
 <figure class="quarto-float quarto-float-fig figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-fig" id="fig-bias-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="FigureTitle" data-custom-style="FigureTitle">
@@ -1106,7 +1104,7 @@ Regression Coefficients:
 <p>The final step to answering our research question is to perform significance tests that quantify the amount of evidence for mental-health-related differences in model parameters. Of course, the credible intervals on our previous estimates give us an idea of the probable size of each of these effects. But while credible intervals themselves provide some information about the existence of an effect, they do not provide information about statistical significance <span class="citation" data-cites="makowski2019">(<a href="#ref-makowski2019" role="doc-biblioref">Makowski et al., 2019</a>)</span>. So, here we will focus on one approach to Bayesian significance testing: Bayes Factors. In general, Bayes Factors represent the degree to which the data have increased the odds of the alternative hypothesis relative to the null hypothesis. As a special case, when using a point null hypothesis (e.g., that anxious depression has no effect on log <span class="math inline">M</span>-ratio), it is efficient to compute the Bayes Factor using the Savage-Dickey density ratio, that is, by comparing the prior and posterior density of the null value. This process yields <span class="math inline">BF&gt;1</span> when the data provide support for the alternative hypothesis, <span class="math inline">BF&lt;1</span> when the data provide support for the null hypothesis, and <span class="math inline">BF=1</span> when the data do not inform either hypothesis <span class="citation" data-cites="makowski2019">(for more information, see <a href="#ref-makowski2019" role="doc-biblioref">Makowski et al., 2019</a>)</span>.</p>
 <p>Bayes Factors can be easily computed using the function <code>describe_posterior</code> in the <code>bayestestR</code> package:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">describe_posterior</span>(m, <span class="at">test =</span> <span class="st">"bf"</span>, <span class="at">bf_prior =</span> m.prior, <span class="at">component =</span> <span class="st">"all"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">describe_posterior</span>(m, <span class="at">test =</span> <span class="st">"bf"</span>, <span class="at">bf_prior =</span> m.prior, <span class="at">component =</span> <span class="st">"all"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Summary of Posterior Distribution
 
@@ -1160,15 +1158,15 @@ anxious_depression |  -0.02 | [-0.08,  0.04] |    0.144 | 1.000 |       3380</co
 </div>
 <p>In line with our visualizations above, the Bayes Factors show evidence against effects of anxious depression on <span class="math inline">M</span>-ratio, <span class="math inline">d'</span>, and <span class="math inline">c</span>, but evidence for mixed effects on the confidence criteria. Specifically, while the confidence criteria for the lowest confidence level are shifted further away with anxious depression, we see moderate evidence against effects on the highest confidence level. Again, to get a clearer picture, we can analyze meta-<span class="math inline">\Delta</span> instead of the individual confidence criteria. But since meta-<span class="math inline">\Delta</span> is a derived value from the model (and not directly a modeled parameter), we must compute these contrasts manually using the function <code>compare_levels</code> from the <code>tidybayes</code> package:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>contr.bias <span class="ot">&lt;-</span> draws.bias <span class="sc">|&gt;</span></span>
-<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(anxious_depression <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">compare_levels</span>(metacognitive_bias, <span class="at">by =</span> anxious_depression)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>contr.bias <span class="ot">&lt;-</span> draws.bias <span class="sc">|&gt;</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(anxious_depression <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">compare_levels</span>(metacognitive_bias, <span class="at">by =</span> anxious_depression)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Next, we need to compute the same set of contrasts using our prior model (code ommitted for brevity). Finally, after merging the two sets of predictions into a single dataframe, we can compute the Bayes Factors using the function <code>bayestestR::bf_pointnull</code>:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>contr.bias <span class="sc">|&gt;</span></span>
-<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(prior.bias) <span class="sc">|&gt;</span></span>
-<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">BF =</span> <span class="fu">as.numeric</span>(<span class="fu">bf_pointnull</span>(metacognitive_bias, prior)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>contr.bias <span class="sc">|&gt;</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(prior.bias) <span class="sc">|&gt;</span></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">BF =</span> <span class="fu">as.numeric</span>(<span class="fu">bf_pointnull</span>(metacognitive_bias, prior)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1 × 4
 # Groups:   anxious_depression [1]
@@ -1183,26 +1181,26 @@ anxious_depression |  -0.02 | [-0.08,  0.04] |    0.144 | 1.000 |       3380</co
 <h2 data-anchor-id="adding-complexity">Adding complexity</h2>
 <p>Above, we have somewhat simplified our analysis by looking only at associations with anxious depression. But <span class="citation" data-cites="rouault2018">Rouault et al. (<a href="#ref-rouault2018" role="doc-biblioref">2018</a>)</span> found two other relevant mental health factors: compulsivity and social withdrawal. Previous implementations would require manual re-coding of the model to incorporate these additional effects. With the <code>hmetad</code> package, however, we can simply include these additional factors as predictors in the model formula and re-fit the model:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>formula <span class="ot">&lt;-</span> <span class="fu">bf</span>(</span>
-<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>  N <span class="sc">~</span> anxious_depression <span class="sc">+</span> compulsivity <span class="sc">+</span> social_withdrawal <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> participant),</span>
-<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>  dprime <span class="sc">+</span> c <span class="sc">~</span> anxious_depression <span class="sc">+</span> compulsivity <span class="sc">+</span> social_withdrawal <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> participant),</span>
-<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>  metac2zero1diff <span class="sc">+</span> metac2zero2diff <span class="sc">+</span></span>
-<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>    metac2one1diff <span class="sc">+</span> metac2one2diff <span class="sc">~</span></span>
-<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>    anxious_depression <span class="sc">+</span> compulsivity <span class="sc">+</span> social_withdrawal <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> p <span class="sc">|</span> participant)</span>
-<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a>m.prior.full <span class="ot">&lt;-</span> <span class="fu">fit_metad</span>(</span>
-<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a>  formula, d,</span>
-<span id="cb41-11"><a href="#cb41-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">.stimulus =</span> <span class="st">"stimulus_left"</span>, <span class="at">.response =</span> <span class="st">"response_left"</span>,</span>
-<span id="cb41-12"><a href="#cb41-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">prior =</span> prior, <span class="at">sample_prior =</span> <span class="st">"only"</span>, <span class="at">cores =</span> <span class="dv">4</span>, <span class="at">init =</span> <span class="dv">0</span>,</span>
-<span id="cb41-13"><a href="#cb41-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">file =</span> <span class="st">"_models/prior_full.rds"</span></span>
-<span id="cb41-14"><a href="#cb41-14" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb41-15"><a href="#cb41-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb41-16"><a href="#cb41-16" aria-hidden="true" tabindex="-1"></a>m.full <span class="ot">&lt;-</span> <span class="fu">update</span>(</span>
-<span id="cb41-17"><a href="#cb41-17" aria-hidden="true" tabindex="-1"></a>  m.prior.full,</span>
-<span id="cb41-18"><a href="#cb41-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">file =</span> <span class="st">"_models/fit_full.rds"</span>,</span>
-<span id="cb41-19"><a href="#cb41-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">cores =</span> <span class="dv">4</span>, <span class="at">sample_prior =</span> <span class="st">"no"</span>, <span class="at">control =</span> <span class="fu">list</span>(<span class="at">adapt_delta =</span> <span class="fl">0.95</span>),</span>
-<span id="cb41-20"><a href="#cb41-20" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>formula <span class="ot">&lt;-</span> <span class="fu">bf</span>(</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>  N <span class="sc">~</span> anxious_depression <span class="sc">+</span> compulsivity <span class="sc">+</span> social_withdrawal <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> participant),</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>  dprime <span class="sc">+</span> c <span class="sc">~</span> anxious_depression <span class="sc">+</span> compulsivity <span class="sc">+</span> social_withdrawal <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> participant),</span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>  metac2zero1diff <span class="sc">+</span> metac2zero2diff <span class="sc">+</span></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>    metac2one1diff <span class="sc">+</span> metac2one2diff <span class="sc">~</span></span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>    anxious_depression <span class="sc">+</span> compulsivity <span class="sc">+</span> social_withdrawal <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> p <span class="sc">|</span> participant)</span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>m.prior.full <span class="ot">&lt;-</span> <span class="fu">fit_metad</span>(</span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a>  formula, d,</span>
+<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">.stimulus =</span> <span class="st">"stimulus_left"</span>, <span class="at">.response =</span> <span class="st">"response_left"</span>,</span>
+<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">prior =</span> prior, <span class="at">sample_prior =</span> <span class="st">"only"</span>, <span class="at">cores =</span> <span class="dv">4</span>, <span class="at">init =</span> <span class="dv">0</span>,</span>
+<span id="cb40-13"><a href="#cb40-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">file =</span> <span class="st">"_models/prior_full.rds"</span></span>
+<span id="cb40-14"><a href="#cb40-14" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb40-15"><a href="#cb40-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-16"><a href="#cb40-16" aria-hidden="true" tabindex="-1"></a>m.full <span class="ot">&lt;-</span> <span class="fu">update</span>(</span>
+<span id="cb40-17"><a href="#cb40-17" aria-hidden="true" tabindex="-1"></a>  m.prior.full,</span>
+<span id="cb40-18"><a href="#cb40-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">file =</span> <span class="st">"_models/fit_full.rds"</span>,</span>
+<span id="cb40-19"><a href="#cb40-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">cores =</span> <span class="dv">4</span>, <span class="at">sample_prior =</span> <span class="st">"no"</span>, <span class="at">control =</span> <span class="fu">list</span>(<span class="at">adapt_delta =</span> <span class="fl">0.95</span>),</span>
+<span id="cb40-20"><a href="#cb40-20" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
@@ -1271,33 +1269,33 @@ c_anxious_depression                  -0.03      0.02    -0.06     0.00 1.00</co
 </div>
 <p>As we can see from the model summary, the other mental health factors also appear only to affect the confidence criteria. As before, we can visualize group-level estimates of metacognitive bias at varying levels of each factor while holding the others constant:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>mh_grid <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">2</span>, <span class="fl">4.75</span>, <span class="at">by =</span> .<span class="dv">25</span>)</span>
-<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>newdata.ad <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
-<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">anxious_depression =</span> mh_grid, <span class="at">compulsivity =</span> <span class="dv">0</span>, <span class="at">social_withdrawal =</span> <span class="dv">0</span></span>
-<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>newdata.co <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
-<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">anxious_depression =</span> <span class="dv">0</span>, <span class="at">compulsivity =</span> mh_grid, <span class="at">social_withdrawal =</span> <span class="dv">0</span></span>
-<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>newdata.sw <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
-<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">anxious_depression =</span> <span class="dv">0</span>, <span class="at">compulsivity =</span> <span class="dv">0</span>, <span class="at">social_withdrawal =</span> mh_grid</span>
-<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb43-12"><a href="#cb43-12" aria-hidden="true" tabindex="-1"></a>draws.bias.ad <span class="ot">&lt;-</span> <span class="fu">metacognitive_bias_rvars</span>(</span>
-<span id="cb43-13"><a href="#cb43-13" aria-hidden="true" tabindex="-1"></a>  m.full, newdata.ad,</span>
-<span id="cb43-14"><a href="#cb43-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">re_formula =</span> <span class="cn">NA</span>, <span class="at">by_response =</span> <span class="cn">FALSE</span></span>
-<span id="cb43-15"><a href="#cb43-15" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb43-16"><a href="#cb43-16" aria-hidden="true" tabindex="-1"></a>draws.bias.co <span class="ot">&lt;-</span> <span class="fu">metacognitive_bias_rvars</span>(</span>
-<span id="cb43-17"><a href="#cb43-17" aria-hidden="true" tabindex="-1"></a>  m.full, newdata.co,</span>
-<span id="cb43-18"><a href="#cb43-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">re_formula =</span> <span class="cn">NA</span>, <span class="at">by_response =</span> <span class="cn">FALSE</span></span>
-<span id="cb43-19"><a href="#cb43-19" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb43-20"><a href="#cb43-20" aria-hidden="true" tabindex="-1"></a>draws.bias.sw <span class="ot">&lt;-</span> <span class="fu">metacognitive_bias_rvars</span>(</span>
-<span id="cb43-21"><a href="#cb43-21" aria-hidden="true" tabindex="-1"></a>  m.full, newdata.sw,</span>
-<span id="cb43-22"><a href="#cb43-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">re_formula =</span> <span class="cn">NA</span>, <span class="at">by_response =</span> <span class="cn">FALSE</span></span>
-<span id="cb43-23"><a href="#cb43-23" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>mh_grid <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">2</span>, <span class="fl">4.75</span>, <span class="at">by =</span> .<span class="dv">25</span>)</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>newdata.ad <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">anxious_depression =</span> mh_grid, <span class="at">compulsivity =</span> <span class="dv">0</span>, <span class="at">social_withdrawal =</span> <span class="dv">0</span></span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>newdata.co <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">anxious_depression =</span> <span class="dv">0</span>, <span class="at">compulsivity =</span> mh_grid, <span class="at">social_withdrawal =</span> <span class="dv">0</span></span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a>newdata.sw <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">anxious_depression =</span> <span class="dv">0</span>, <span class="at">compulsivity =</span> <span class="dv">0</span>, <span class="at">social_withdrawal =</span> mh_grid</span>
+<span id="cb42-10"><a href="#cb42-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb42-11"><a href="#cb42-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-12"><a href="#cb42-12" aria-hidden="true" tabindex="-1"></a>draws.bias.ad <span class="ot">&lt;-</span> <span class="fu">metacognitive_bias_rvars</span>(</span>
+<span id="cb42-13"><a href="#cb42-13" aria-hidden="true" tabindex="-1"></a>  m.full, newdata.ad,</span>
+<span id="cb42-14"><a href="#cb42-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">re_formula =</span> <span class="cn">NA</span>, <span class="at">by_response =</span> <span class="cn">FALSE</span></span>
+<span id="cb42-15"><a href="#cb42-15" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb42-16"><a href="#cb42-16" aria-hidden="true" tabindex="-1"></a>draws.bias.co <span class="ot">&lt;-</span> <span class="fu">metacognitive_bias_rvars</span>(</span>
+<span id="cb42-17"><a href="#cb42-17" aria-hidden="true" tabindex="-1"></a>  m.full, newdata.co,</span>
+<span id="cb42-18"><a href="#cb42-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">re_formula =</span> <span class="cn">NA</span>, <span class="at">by_response =</span> <span class="cn">FALSE</span></span>
+<span id="cb42-19"><a href="#cb42-19" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb42-20"><a href="#cb42-20" aria-hidden="true" tabindex="-1"></a>draws.bias.sw <span class="ot">&lt;-</span> <span class="fu">metacognitive_bias_rvars</span>(</span>
+<span id="cb42-21"><a href="#cb42-21" aria-hidden="true" tabindex="-1"></a>  m.full, newdata.sw,</span>
+<span id="cb42-22"><a href="#cb42-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">re_formula =</span> <span class="cn">NA</span>, <span class="at">by_response =</span> <span class="cn">FALSE</span></span>
+<span id="cb42-23"><a href="#cb42-23" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell FigureWithNote" data-apa-note="Lines indicate posterior medians and ribbons indicate 95% posterior quantiles. Points indicate posterior medians of participant-level estimates." data-custom-style="FigureWithNote">
 <div class="cell-output-display">
-<div id="fig-bias-mh" class="quarto-float quarto-figure quarto-figure-center" prefix="" data-fignum="10">
+<div id="fig-bias-mh" class="quarto-float quarto-figure quarto-figure-center" data-fignum="10" prefix="">
 <figure class="quarto-float quarto-float-fig figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-fig" id="fig-bias-mh-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="FigureTitle" data-custom-style="FigureTitle">
@@ -1321,8 +1319,8 @@ c_anxious_depression                  -0.03      0.02    -0.06     0.00 1.00</co
 </div>
 <p>Finally, once again we can compute Bayes Factors for these contrasts:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>contr.bias <span class="sc">|&gt;</span></span>
-<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">BF =</span> <span class="fu">as.numeric</span>(<span class="fu">bf_pointnull</span>(posterior, prior)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>contr.bias <span class="sc">|&gt;</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">BF =</span> <span class="fu">as.numeric</span>(<span class="fu">bf_pointnull</span>(posterior, prior)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 3 × 4
   factor                   posterior         prior      BF
