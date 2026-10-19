@@ -1,6 +1,6 @@
-As a practical demonstration of how to use the `hmetad` package to fit the $\meta{d'}$ model in R, here we reanalyze data from @rouault2018 Experiment 2. In this experiment, 497 participants (after exclusion) completed a two-alternative forced-choice perceptual decision-making task in which they were asked to decide which of two boxes contained more dots. Participants rated their confidence in their perceptual decisions on a six-point scale from "guessing" to "certainly correct". Participants' performance on the perceptual task was controlled using a two-down one-up staircase on the difference in the number of dots between the two boxes. Finally, particpants completed a number of self-report psychiatric questionnaires, which were aggregated into three factors (i.e., anxious-depression, compulsive behavior and intrusive thought, and social withdrawal) using factor analysis [for more information, see @rouault2018]. For simplicity, we will focus on the effects of anxious depression on metacognition, returning to the effects of the other two factors afterwards.
+As a practical demonstration of how to use the `hmetad` package to fit the $\meta{d'}$ model in R, here we reanalyze data from @rouault2018 Experiment 2. In this experiment, 497 participants (after exclusion) completed a two-alternative forced-choice perceptual decision-making task in which they were asked to decide which of two boxes contained more dots. Participants rated their confidence in their perceptual decisions on a six-point scale from "guessing" to "certainly correct". Participants' performance on the perceptual task was controlled using a two-down one-up staircase on the logarithm of the difference in the number of dots between the two boxes. Finally, participants completed a number of self-report psychiatric questionnaires, which were aggregated into three factors (i.e., anxious-depression, compulsive behavior and intrusive thought, and social withdrawal) using factor analysis [for more information, see @rouault2018]. For simplicity, we will focus on the effects of the anxious-depression factor on metacognition, returning to the effects of the other two factors afterwards.
 
-In their analysis, @rouault2018 correlated these three factors with independent single-participant estimates of $M$-ratio and mean confidence. This approach has two main drawbacks: (a) participant-level estimates of metacognitive factors are noisy and thus benefit strongly from the partial pooling present in multilevel models [@fleming2017; @rahnev2025], and (b) correlating participant-level estimates with mental health factors ignores uncertainty in participant-level estimates, as well as potential correlations in uncertainty, leading to miscalibrated statistical inferences [@singmann2019]. Here, we overcome these limitations by directly modeling the association of anxious depression on the parameters of the $\meta{d'}$ model, where participant-level parameters are estimated hierarchically.
+In their analysis, @rouault2018 correlated these three factors with independent single-participant estimates of $M$-ratio and mean confidence. Putting aside recent debate over whether observed correlations are due to inattentive and biased responding [@sarna2026; @gillan2026; @sarna2026b], this approach has three significant drawbacks: (a) participant-level estimates of metacognitive factors are noisy and thus benefit strongly from the partial pooling present in multilevel models [@fleming2017; @rahnev2025], (b) correlating participant-level estimates with mental health factors ignores uncertainty in participant-level estimates, as well as potential correlations in uncertainty, leading to miscalibrated statistical inferences [@singmann2019; @moutoussis2018], and (c) although mean confidence is a sensitive measure of metacognitive bias, it is known to be confounded by metacognitive sensitivity and Type I performance [@oneill2026]. Here, we overcome these limitations by directly modeling the association of anxious-depression with the parameters of the $\meta{d'}$ model, where participant-level parameters are estimated hierarchically.
 
 ## Setup
 
@@ -8,7 +8,7 @@ In their analysis, @rouault2018 correlated these three factors with independent 
 
 To install the latest release of the `hmetad` package from CRAN, one can use the command `install.packages("hmetad")`. Alternatively, the development version of `hmetad` can be installed using `pak::pak("metacoglab/hmetad")`.
 
-The `hmetad` package depends on the `brms` package, which in turn uses either the `Rstan` or `cmdstanr` interface to the probabilistic programming language Stan. Installing `hmetad` will install `Rstan` automatically, however it is also recommended to install the `cmdstanr` package, since it produces more optimized code for most applications. In either case, both interfaces requires a working C++ compiler specific to your computer's operating system. In particular, Windows users must install RTools (<https://cran.r-project.org/bin/windows/Rtools/>). For detailed information on installation, please see <https://mc-stan.org/install/>.
+The `hmetad` package depends on the `brms` package, which in turn uses either the `Rstan` or `cmdstanr` interface to the probabilistic programming language Stan. Installing `hmetad` will install `Rstan` automatically, however it is also recommended to install the `cmdstanr` package, since it produces more optimized code for most applications. In either case, both interfaces require a working C++ compiler specific to your computer's operating system. In particular, Windows users must install RTools (<https://cran.r-project.org/bin/windows/Rtools/>). For detailed information on installation, please see <https://mc-stan.org/install/>.
 
 Once installed, the `hmetad` package can be loaded using the command `library(hmetad)`.
 
@@ -33,7 +33,7 @@ d
 
 As we can see, this is quite a large data set with `{r} nrow(d)` observations, where `participant` is the participant identifier, `stimulus_left` indicates whether the box with more dots was on the left side, `response_left` indicates whether the participant reported that the left box had more dots, `confidence` indicates their confidence rating, `age` and `gender_female` are demographic variables, and `anxious_depression`, `compulsivity`, and `social_withdrawal` are the psychiatric indices generated from factor analysis [see @rouault2018 for more information].
 
-To increase the efficiency of model fitting, the `hmetad` fits the $\meta{d'}$ model on aggregated data rather than this trial-level data. In practice, the `hmetad` automatically generates this aggregated data set internally based on the provided model formula, so users are not required to aggregate their own data. Nevertheless, if we would like, we can manually aggregate the data using the function `aggregate_metad(d, ...)`, where `...` are grouping columns by which to aggregate. By default, this function assumes that `d` has a column named `stimulus` and either separate columns named `response` and `confidence` or a single `joint_response` column. Since our data has the more informative column names `stimulus_left` and `response_left`, we can indicate this using the optional arguments `.stimulus` and `.response`. For instance, we can aggregate the data separately for each participant like so:
+To increase the efficiency of model fitting, `hmetad` fits the $\meta{d'}$ model on aggregated data rather than this trial-level data. In practice, `hmetad` automatically generates this aggregated data set internally based on the provided model formula, so users are not required to aggregate their own data. Nevertheless, if we would like, we can manually aggregate the data using the function `aggregate_metad(d, ...)`, where `...` are grouping columns by which to aggregate. By default, this function assumes that `d` has a column named `stimulus` and either separate columns named `response` and `confidence` or a single `joint_response` column. Since our data has the more informative column names `stimulus_left` and `response_left`, we can indicate this using the optional arguments `.stimulus` and `.response`. For instance, we can aggregate the data separately for each participant like so:
 
 ```{r}
 #| label: data_aggregation
@@ -45,7 +45,7 @@ aggregate_metad(
 
 Instead of one row per trial, this aggregated data set has only `{r} n_distinct(d$participant)` rows (one row per participant). Here, the `N_0` and `N_1` columns represent the number of trials where `stimulus_left==0` and `stimulus_left==1`, respectively, and the `N` column is a matrix containing the joint distribution of stimuli, Type I responses, and Type II responses. Its sub-columns are named with the pattern `N_<stimulus>_<joint_response>`, such that `N_0_1` contains the number of trials with `stimulus==0` and `joint_response==1` (i.e., `response_left==0` and `confidence==6`) and `N_1_7` contains the number of trials with `stimulus==1` and `joint_response==7` (i.e., `response_left==1` and `confidence==1`). 
 
-We are free to add any other grouping columns for data aggregation. Since we will be using anxious depression as a predictor, for example, we can include it like so:
+We are free to add any other grouping columns for data aggregation. Since we will be using anxious-depression as a predictor, for example, we can include it like so:
 ```{r}
 #| label: data_aggregation2
 aggregate_metad(
@@ -82,9 +82,9 @@ As we demonstrate below, each of these functions has another corresponding funct
 
 ## Model specification
 
-Given a data set, the next step is to specify a model that properly accounts for the nested structure of the data. Here we focus on specifying a model for the data collected by @rouault2018 as an example. A full characterization of available model designs is outside the scope of this article, however we refer readers to [@buerkner2018; @singmann2019] for more information.
+Given a data set, the next step is to specify a model that properly accounts for the nested structure of the data. Here we focus on specifying a model for the data collected by @rouault2018 as an example. A full characterization of available model designs is outside the scope of this article; we refer readers to [@buerkner2018; @singmann2019] for more information.
 
-As can be seen from the aggregated data, @rouault2018 used a mixed design with repeated trials per participant, but with anxious depression as a between-participant predictor. To account for this structure, we will want a model that hierarchically estimates separate parameters for each participant with population-level effects of anxious depression [@barr2013]. In the `hmetad` package, we can specify this structure as an R formula as used in the `lme4` and `brms` packages.
+As can be seen from the aggregated data, @rouault2018 used a mixed design with repeated trials per participant, but with anxious-depression as a between-participant predictor. To account for this structure, we want a model that hierarchically estimates separate parameters for each participant with population-level effects of anxious-depression [@barr2013]. In the `hmetad` package, we can specify this structure as an R formula as used in the `lme4` and `brms` packages.
 
 First, to verify which parameters our model contains, it is helpful to view the distribution family for our data:
 
@@ -113,6 +113,7 @@ paste0(
 This output tells us a few key pieces of information. Looking at the name of the model family, we see that our model has `{r} n_distinct(d$confidence)` confidence levels and uses the normal distribution for the signal detection model, the [absolute]{.smallcaps} variant of the $\meta{d'}$ model, and the multinomial likelihood (over aggregated data). This output also lists the model parameters over which we can specify `brms` formulas. The primary model parameter is the $M$-ratio, which for technical reasons, `brms` requires to be called `mu`. As the model uses the `log` link function, $M$-ratio is estimated on the logarithmic scale to prevent negative estimates of $M$-ratio^[This constraint can be relaxed by setting the argument `allow_negative_values = TRUE`.]. `dprime` and `c` are the Type I sensitivity and response criterion estimated on the identity scale. Finally, we have a long list of parameters which define the Type II criteria. These parameters are named using the syntax `metac2<response><confidence>diff`, where `<response>` is the Type I response (either `zero` or `one`) and `<confidence>` is any integer from `1` to `5` (one less than the total number of confidence levels).
 
 Now that we know the names of all of the parameters for our model, we can specify a model formula for each parameter using the function `bf` from the `brms` package:
+
 ```{r}
 #| label: formula
 #| eval: false
@@ -133,7 +134,8 @@ formula <- bf(
 )
 ```
 
-This formula has a few notable features. First, to specify the formula for $M$-ratio, we use the response variable `N` (which is the name of the column of aggregated responses from `aggregate_metad`). Second, for each parameter we include `anxious_depression` as a between-participant predictor in the model. Third, we include hierarchical estimates of all coefficients for each participant with the syntax `(1 | participant)` and `(1 |p| participant)`. This syntax results in random intercepts for each participant, meaning that this model will capture participant-level deviations from model estimates.^[Note that if we had within-participant predictors, it would be appropriate to include those in this formula.] Here, we use `(1 |p| participant)` for the confidence criteria to additionally model participant-level correlations (since it is expected that participants with one confidence criterion set high will likely have others set high as well). As we are using the same design for all model parameters, the formula above has a lot of repeated code. To make the code more readable, then, we can specify formulas for multiple model parameters at the same time (except for $M$-ratio, which requires its own formula):
+This formula has a few notable features. First, to specify the formula for $M$-ratio, we use the response variable `N` (which is the name of the column of aggregated responses from `aggregate_metad`). Second, for each parameter we include `anxious_depression` as a between-participant predictor in the model. Third, we include hierarchical estimates of all coefficients for each participant with the syntax `(1 | participant)` and `(1 |p| participant)`. This syntax results in random intercepts for each participant, meaning that this model will capture participant-level deviations from model estimates.^[Note that if we had within-participant predictors, it would be appropriate to include those in this formula.] Here, we use `(1 |p| participant)` for the confidence criteria to additionally model participant-level correlations (since it is expected that participants with one confidence criterion set high will likely have others set high as well). As we are using the same design for all model parameters, the formula above has a lot of repeated code. To make the code more readable, we can specify formulas for multiple model parameters at the same time using the `+` operator (except for $M$-ratio, which requires its own formula):
+
 ```{r}
 #| label: formula_short
 formula <- bf(
@@ -151,10 +153,83 @@ formula <- bf(
 
 ## Prior elicitation
 
-Before fitting the $\meta{d'}$ model, it is necessary to specify priors over model parameters using multiple calls to the `set_prior` function (or one of its variants) from the `brms` package. Generally, prior specification will depend on a mixture of domain expertise about the model, the data being modeled, and the population being studied. Because prior specification is a somewhat subjective process, we recommend the use of prior predictive checks as a standard part of the Bayesian workflow [@gelman2026; @schad2021]. Here we chose to use normal priors over the model coefficients, half-normal priors for the between-participant standard deviations, and LKJ priors for between-participant correlations:
+Before fitting the $\meta{d'}$ model, it is necessary to specify priors over model parameters using multiple calls to the `set_prior` function (or one of its variants) from the `brms` package. Generally, prior specification will depend on a mixture of domain expertise about the model, the data being modeled, and the population being studied. The general goal is to choose priors that match our broad assumptions about the patterns expected in the data. Critically, these expectations are typically independent of our hypothesis test(s) of interest---in this case, the link between anxious-depression level and metacognition. For instance, in the case of the $\meta{d'}$ model, we should select priors on confidence criteria that approximate a reasonable distribution of confidence ratings when averaged across conditions of an experiment, or across individuals in a population. Appropriate prior specification is important to enable efficient and accurate model fits, just as selecting appropriate initializations and bounds on parameters is important for any constrained optimization problem. Because prior specification is a somewhat subjective process, we recommend the use of prior predictive checks---the simulation of model parameters and predictions from the prior distribution---as a standard part of the Bayesian workflow [@gelman2026; @schad2021]. 
+
+Here we chose to use normal priors over the model coefficients, half-normal priors for the between-participant standard deviations, and LKJ priors for between-participant correlations:
 
 ```{r}
 #| label: set_prior
+prior <- set_prior("normal(0, .33)", class = "Intercept") +
+  set_prior("normal(1.11, .1)", class = "Intercept", dpar = "dprime") +
+  set_prior("normal(0, .1)", class = "Intercept", dpar = "c") +
+  set_prior("normal(0, 1)", class = "Intercept", dpar = metac2_parameters(K = 6)) +
+  set_prior("normal(0, 0.25)", class = "b") +
+  set_prior("normal(0, 0.25)", class = "b", dpar = c("dprime", "c")) +
+  set_prior("normal(0, 0.25)", class = "b", dpar = metac2_parameters(K = 6)) +
+  set_prior("normal(0, 0.5)", class = "sd") +
+  set_prior("normal(0, 0.33)", class = "sd", dpar = c("dprime", "c")) +
+  set_prior("normal(0, 1)", class = "sd", dpar = metac2_parameters(K = 6)) +
+  set_prior("lkj(2)", class = "cor")
+```
+
+Because we are modeling each parameter hierarchically, each parameter has a separate prior for its population-level intercepts (with the argument `class = "Intercept"`), population-level coefficients (with the argument `class = "b"`) and for the standard deviation of between-participant differences (with the argument `class = "sd"`). These priors have been selected to match our expectations for the particular design used by @rouault2018. In particular, for perceptual tasks we generally expect mean $M$-ratio to lie somewhere between `0.5` and `2.0`, with participant-level $M$-ratios having slightly more variance. Next, because this experiment (a) used a two-alternative forced-choice design to reduce response biases and (b) included a two-down one-up staircase to fix task performance to $\sim\! 71\%$ for all participants, we have a strong expectation that $c \approx 0$ and $d' \approx 2\Phi^{-1}(.71) \approx 1.11$. To account for this, we set reasonably informative priors over both parameters, as well as priors over the between-participant standard deviations that encourage small differences in first-order performance between participants.
+
+The priors for the confidence criteria are the most difficult to set, because they are on an unintuitive scale (i.e., log distances between successive criteria) and because the optimal criterion setting will depend on the number of confidence levels available to the participant [among other factors, see @maniscalco2025]. As a starting point, here was have arbitrarily chosen standard normal priors for these parameters. Rather than relying on such choices in our analysis, however, here we will iteratively refine our prior distribution through the use of prior predictive checks. As described above, these prior predictive checks are carried out before evaluating our hypothesis test about the relationship between anxious-depression level, to avoid biasing our choice of priors. So, to check the implications of this prior distribution, we can fit a prior-only model by calling the function `fit_metad` with the argument `sample_prior = "only"`:
+```{r}
+#| label: prior_model
+m.prior <- fit_metad(
+  formula, d,
+  .stimulus = "stimulus_left", .response = "response_left",
+  file = "_models/prior_stdnormal.rds", prior = prior, sample_prior = "only",
+  cores = 4, init = 0
+)
+```
+
+Here we have chosen to save our prior model into a file called `prior_stdnormal.rds`, to run Stan in parallel across four cores, and to initialize all parameters to zero. Like any other `brms` object, we can view helpful summaries of our model using the `summary` and `plot` functions. Since this model has a large number of parameters, however, it is easier to check the implications of this prior distribution by plotting out distributions of model parameters and other implied quantities. 
+
+The `hmetad` package has a range of functions for extracting such model quantities, all of which contain either `_draws` or `_rvars` following conventions from the `tidybayes` package [@tidybayes]. Each of these functions takes as input a `brms` model and a new dataset from which to compute predictions. To check our priors for the group-level parameters, we can first display the prior distributions of model parameters using the function `linpred_rvars_metad` over a sample dataset where anxious-depression is set to zero (i.e., its mean value) and `tidybayes::median_qi` to display prior medians and 95% credible intervals:
+```{r}
+#| label: linpred_rvars_metad
+newdata <- tibble(anxious_depression = 0)
+
+linpred_rvars_metad(m.prior, newdata, re_formula = NA, pivot_longer = TRUE) |>
+  median_qi(.value)
+```
+
+Just by looking at the prior summary, we can see that this prior places reasonable bounds for mean $M$-ratio, $d'$, and $c$. We can also see that our priors for the mean Type II criteria are ordered appropriately with a substantial degree of uncertainty, though it is still not immediately clear whether these values are plausible. Note that, in this code, participant-level differences are ignored by setting `re_formula = NA` (otherwise, `newdata` must contain a column called `participant` containing the ID of the participant being simulated).
+
+As a further check, we can compute the implied Type II response probabilities using the analogous function `type2_rvars(m.prior, newdata, re_formula = NA, by_correct = TRUE)` (see [@fig-type2-prior]A). From this figure, it is clear that the standard normal priors for the confidence criteria place far too much probability on low-confidence responses, such that the maximum confidence level has almost no prior probability. To fix this issue, we iteratively adjusted the prior mean until the prior predictions appear suitable. This process revealed that a prior mean of -1.33 generated prior predictions that put roughly equal probability on each confidence level for correct responses with a slight preference for low confidence for incorrect responses, which is a reasonable starting point [@fig-type2-prior]B. 
+
+Critically, it is necessary to tune the prior for the Type II criteria through iterative refinement and visualization, because models with different number of confidence criteria require different parameter values to produce roughly uniform confidence responding. As an example, if we use the same prior for a hypothetical dataset with only two confidence levels, the resulting prior predictions strongly favor high-confidence responding ([@fig-type2-prior]C). In this scenario, it would be sensible to increase the prior mean of the confidence criteria until the prior predictions more closely resembled our expectations.
+
+
+```{r}
+#| label: fig-type2-prior
+#| fig-width: 12
+#| fig-height: 6
+#| echo: false
+#| dev: !expr ifelse(fromJSON(Sys.getenv("QUARTO_EXECUTE_INFO"))$format$identifier$`target-format` %in% c("pdf", "apaquarto-pdf", "latex"), "png", "svg")
+#| fig-cap: Prior predictions of Type II response probabilities. *(A)* Group-level prior predictions with anxious-depression at the mean, using a standard normal prior for the distances between confidence criteria on the logarithmic scale. These predictions are highly skewed to favor low-confidence responses, suggesting that these confidence criteria are too far apart. *(B)* Group-level prior predictions using a revised prior with the mean distance between criteria reduced to -1.33 on the logarithmic scale. Prior predictions are now mostly uniform, with a slight preference for low confidence following incorrect responses. *(C)* Group-level prior predictions using the same prior as in *(B)*, only for a dataset with two confidence levels. Unlike in *(B)*, this prior favors high confidence ratings and should likely be adjusted before use. *(D)* Participant-level prior predictions using the same prior as in *(B)* for an example participant.
+#| apa-note: Points and intervals indicate prior medians and 95% credible intervals. Smoothed bars depict complementary cumulative distribution function of prior distributions.
+
+## plot prior predictions using std normal prior for metac2 parameters
+m.prior.std_normal <- m.prior
+fig.prior.std_normal <- type2_rvars(
+  m.prior.std_normal, newdata, re_formula = NA, by_correct = TRUE
+) |>
+  ungroup() |>
+  mutate(across(c(confidence, correct), factor)) |>
+  ggplot(aes(x = confidence, ydist = .epred)) +
+  stat_ccdfinterval(aes(slab_alpha = after_stat(f), fill = correct),
+    position = "dodge", thickness = 1, .width = .95,
+    fill_type = "gradient",
+    show.legend = c(
+      slab_alpha = FALSE,
+      size = FALSE
+    )
+  )
+
+## update prior mean of metac2 parameters and refit model
 prior <- set_prior("normal(0, .33)", class = "Intercept") +
   set_prior("normal(1.11, .1)", class = "Intercept", dpar = "dprime") +
   set_prior("normal(0, .1)", class = "Intercept", dpar = "c") +
@@ -166,48 +241,15 @@ prior <- set_prior("normal(0, .33)", class = "Intercept") +
   set_prior("normal(0, 0.33)", class = "sd", dpar = c("dprime", "c")) +
   set_prior("normal(0, 1)", class = "sd", dpar = metac2_parameters(K = 6)) +
   set_prior("lkj(2)", class = "cor")
-```
-
-Because we are modeling each parameter hierarchically, each parameter has a separate prior for its population-level intercepts (with the argument `class = "Intercept"`), population-level coefficients (with the argument `class = "b"`) and for the standard deviation of between-participant differences (with the argument `class = "sd"`). These priors have been selected to match our expectations for the particular design used by @rouault2018. In particular, for perceptual tasks we generally expect mean $M$-ratio to lie somewhere between `0.5` and `2.0`, with participant-level $M$-ratios having slightly more variance. Next, because this experiment (a) used a two-alternative forced-choice design to reduce response biases and (b) included a two-down one-up staircase to fix task performance to $\sim\! 71\%$ for all participants, we have a strong expectation that $c \approx 0$ and hence that $d' \approx -2\Phi^{-1}(1 - .71) \approx 1.11$. To account for this, we set reasonably informative priors over both parameters, as well as priors over the between-participant standard deviations that encourage small differences in first order performance between participants.
-
-The priors for the confidence criteria are the most difficult to set, because they are on an unintuitive scale (i.e., log distances between successive criteria) and because the optimal criterion setting will depend on the number of confidence levels available to the participant [among other factors, see @maniscalco2025]. So, to check the implications of this prior distribution, we can fit a prior-only model by calling the function `fit_metad` with the argument `sample_prior = "only"`:
-```{r}
-#| label: prior_model
 m.prior <- fit_metad(
   formula, d,
   .stimulus = "stimulus_left", .response = "response_left",
   file = "_models/prior.rds", prior = prior, sample_prior = "only",
   cores = 4, init = 0
 )
-```
-
-Here we have chosen to save our prior model into a file called `prior.rds`, to run Stan in parallel across four cores, and to initialize all parameters to zero. Like any other `brms` object, we can view helpful summaries of our model using the `summary` and `plot` functions. Since this model has a large number of parameters, however, it is easier to check the implications of this prior distribution by plotting out distributions of model parameters and other implied quantities. 
-
-The `hmetad` package has a range of functions for extracting such model quantities, all of which contain either `_draws` or `_rvars` following conventions from the `tidybayes` package. Each of these functions takes as input a `brms` model and a new dataset from which to compute predictions. To check our priors for the group-level parameters, we can first display the prior distributions of model parameters using the function `linpred_rvars_metad` over a sample dataset where anxious depression is set to zero (i.e., its mean value) and `tidybayes::median_qi` to display prior medians and 95% credible intervals:
-```{r}
-#| label: linpred_rvars_metad
-newdata <- tibble(anxious_depression = 0)
-
-linpred_rvars_metad(m.prior, newdata, re_formula = NA, pivot_longer = TRUE) |>
-  median_qi(.value)
-```
-
-Just by looking at the prior summary, we can see that this prior places reasonable bounds for mean $M$-ratio, $d'$, and $c$. We can also see that our priors for the mean Type II criteria are ordered appropriately with a moderate degree of uncertainty. Note that, in this code, participant-level differences are ignored by setting `re_formula = NA` (otherwise, `newdata` must contain a column called `participant` containing the ID of the participant being simulated).
-
-As a further check, we can compute the implied Type II response probabilities using the analogous function `type2_rvars(m.prior, newdata, re_formula = NA, by_correct = TRUE)` (see [@fig-type2-prior]A). From this figure, it is clear that our priors put roughly equal probability on each response for each possible stimulus with a slight preference for accurate but low confidence responses, which is a reasonable start. Critically, it is necessary to tune the prior for the Type II criteria through iterative refinement and visualization, because models with different number of confidence criteria require different parameter values to produce roughly uniform confidence responding. As an example, if we use the same prior for a hypothetical dataset with only two confidence levels, the resulting prior predictions strongly favor high-confidence responding ([@fig-type2-prior]B). In this scenario, it would be sensible to increase the prior mean of the confidence criteria until the prior predictions more closely resembled our expectations.
-
-
-```{r}
-#| label: fig-type2-prior
-#| fig-width: 12
-#| fig-height: 6
-#| echo: false
-#| dev: !expr ifelse(fromJSON(Sys.getenv("QUARTO_EXECUTE_INFO"))$format$identifier$`target-format` %in% c("pdf", "apaquarto-pdf", "latex"), "png", "svg")
-#| fig-cap: Prior predictions of Type II response probabilities. *(A)* Group-level prior predictions with anxious depression at the mean. Prior predictions are mostly uniform, with a slight preference for low-confidence incorrect responses and high-confidence correct responses. *(B)* Participant-level prior predictions for an example participant. *(C)* Group-level prior predictions using the same prior as in *(A)*, only for a dataset with two confidence levels. Unlike in *(A)*, this prior favors high confidence ratings and should likely be adjusted before use.
-#| apa-note: Points and intervals indicate prior medians and 95% credible intervals. Smoothed bars depict complementary cumulative distribution function of prior distributions.
 
 # group-level prior
-fig.prior.a <- type2_rvars(m.prior, newdata, re_formula = NA, by_correct = TRUE) |>
+fig.prior.group <- type2_rvars(m.prior, newdata, re_formula = NA, by_correct = TRUE) |>
   ungroup() |>
   mutate(across(c(confidence, correct), factor)) |>
   ggplot(aes(x = confidence, ydist = .epred)) +
@@ -221,7 +263,7 @@ fig.prior.a <- type2_rvars(m.prior, newdata, re_formula = NA, by_correct = TRUE)
   )
 
 # participant-level prior
-fig.prior.b <- newdata |>
+fig.prior.participant <- newdata |>
   mutate(participant = first(d$participant)) |>
   add_type2_rvars(m.prior, by_correct = TRUE) |>
   ungroup() |>
@@ -252,7 +294,7 @@ prior_2 <- fit_metad(
     )
 )
 
-fig.prior.c <- type2_rvars(prior_2, newdata, re_formula = NA, by_correct = TRUE) |>
+fig.prior.2 <- type2_rvars(prior_2, newdata, re_formula = NA, by_correct = TRUE) |>
   ungroup() |>
   mutate(across(c(confidence, correct), factor)) |>
   ggplot(aes(x = confidence, ydist = .epred)) +
@@ -265,20 +307,18 @@ fig.prior.c <- type2_rvars(prior_2, newdata, re_formula = NA, by_correct = TRUE)
     )
   )
 
-(((fig.prior.a / fig.prior.b) |
-  ((plot_spacer() / fig.prior.c / plot_spacer()) +
-    plot_layout(heights = c(1, 3, 1)))) &
-  scale_x_discrete("Confidence") &
-  ylab("Prior probability") &
-  coord_cartesian(ylim = c(0, 1), expand = FALSE) &
-  scale_fill_manual("Accuracy", labels = c("Incorrect", "Correct"), values = PALETTE_CORRECT) &
-  theme_metad()) +
+((fig.prior.std_normal + fig.prior.group + fig.prior.2 + fig.prior.participant) &
+   scale_x_discrete("Confidence") &
+   ylab("Prior probability") &
+   coord_cartesian(ylim = c(0, 1), expand = FALSE) &
+   scale_fill_manual("Accuracy", labels = c("Incorrect", "Correct"), values = PALETTE_CORRECT) &
+   theme_metad()) +
   plot_annotation(tag_levels = "A") +
-  plot_layout(guides = "collect", widths = c(2, 1))
+  plot_layout(guides = "collect", widths = c(1, 1))
 ```
 
 
-Next, to visualize priors for participant-level standard deviations, it suffices to simulate just a single participant (since all participants are equivalent *a priori*):
+Having settled on a prior for the group-level confidence criteria, we next visualize priors for participant-level standard deviations by simulating just a single participant (since all participants are equivalent *a priori*):
 
 ```{r}
 #| label: type2-prior-participant
@@ -288,7 +328,7 @@ newdata |>
   median_qi(.value)
 ```
 
-The resulting probabilities are plotted in [@fig-type2-prior]C. Note that participant-level priors will always be centered around the population means, only with greater uncertainty. Just as with the population-level parameters, we can use visualizations like this to iteratively elicit prior distributions that reflect our beliefs about reasonable differences between participants. For instance, we can increasing the participant-level standard deviations to allow a wider range of behaviors, or alternatively decrease the participant-level standard deviations to encourage stronger similarity between participants. This strategy is also useful for setting priors for model coefficients, for example to visualize differences in prior distributions at different levels of anxious depression.
+The resulting probabilities are plotted in [@fig-type2-prior]D. Note that participant-level priors will always be centered around the population means, only with greater uncertainty. Just as with the population-level parameters, we can use visualizations like this to iteratively elicit prior distributions that reflect our beliefs about reasonable differences between participants. For instance, we can increase the participant-level standard deviations to allow a wider range of behaviors or alternatively decrease the participant-level standard deviations to encourage stronger similarity between participants. This strategy is also useful for setting priors for model coefficients, for example to visualize differences in prior distributions at different levels of anxious-depression.
 
 We end this section by highlighting two key points. First, there can be reasonable disagreement about the "best" prior to use in any given situation; as a result, one's choice of prior need only be scientifically justifiable in the context of one's particular study [@mcelreath2016]. Moreover, so long as the prior is not exceedingly informative, its influence on the resulting posterior should be small [@kruschke2018]. Second, **prior revision should always occur before looking at the data**, since refining a prior after observing the data is a form of double-dipping tantamount to Bayesian $p$-hacking. Incorporating thorough prior predictive checks into a standard workflow can help prevent such practices by ensuring that one's model is validated before fitting it to data [@gelman2026].
 
@@ -297,7 +337,7 @@ We end this section by highlighting two key points. First, there can be reasonab
 
 ## Model fitting
 
-Now that we have verified that our prior model is sufficient, we can fit the model to our data by calling the `update` function on our prior model with the argument `sample_prior = "no"` (alternatively, we could call `fit_metad` function again, except this time removing the argument `sample_prior = "only"`). Note that the time it takes to fit a model is mostly dependent on the number of rows in the aggregated dataset (i.e., participants and within-participant conditions), not the number of trials. Most simple models should be able to fit within a few minutes, however models with many predictors or models fit to large datasets such as this one may take over an hour. In such cases, we recommend using a smaller subset of the data during model development.
+Now that we have verified that our prior model is sufficient, we can fit the model to our data by calling the `update` function on our prior model with the argument `sample_prior = "no"` (alternatively, we could call `fit_metad` function again, except this time removing the argument `sample_prior = "only"`). Note that the time it takes to fit a model is mostly dependent on the number of rows in the aggregated dataset (i.e., participants and within-participant conditions), not the number of trials. Most simple models should fit within a few minutes; however models with many predictors or models fit to large datasets such as this one may take over an hour. In such cases, we recommend using a smaller subset of the data during model development.
 
 ```{r}
 #| label: model
@@ -309,7 +349,7 @@ Like any `brms` model, we can obtain numerical and graphical summaries of the po
 
 ### Model convergence
 
-There are a number of possible warning messages that one might encounter during model fitting. Some warnings, such as warnings about effective sample size, do not indicate serious problems with the model itself and can usually be resolved with minor adjustments (e.g., running the model for a larger number of iterations). But most of the diagnostics checked by Stan *do* indicate problems with the model that must be resolved before interpreting the resulting posterior. Here we will focus on one common issue resulting from hierarchical models: divergent transitions. For a detailed guide on resolving other model fitting issues, we recommend the [Stan guide on convergence warnings](https://mc-stan.org/learn-stan/diagnostics-warnings.html). 
+There several possible warning messages that one might encounter during model fitting. Some warnings, such as warnings about effective sample size, do not indicate serious problems with the model itself and can usually be resolved with minor adjustments (e.g., running the model for a larger number of iterations). But most of the diagnostics checked by Stan *do* indicate problems with the model that must be resolved before interpreting the resulting posterior. Here we will focus on one common issue resulting from hierarchical models: divergent transitions. For a detailed guide on resolving other model fitting issues, we recommend the Stan guide on convergence warnings (<https://mc-stan.org/learn-stan/diagnostics-warnings.html>). 
 
 In this case, R outputs the following warnings:
 ```{r}
@@ -321,13 +361,13 @@ q$warnings |>
   writeLines()
 ```
 
-When `brms` outputs warnings that Stan has encountered divergent transitions, this is an indicator that the model's posterior distribution has not been fully explored, meaning that the posterior samples under-represent the true posterior [@betancourt2017].^[Divergent transitions are a diagnostic specific to Hamiltonian Monte Carlo, the model-fitting algorithm used by Stan. So, models previously fit using the Hmeta-d toolbox may exhibit such warnings when fit with the `hmetad` package. Because JAGS does not provide such diagnostics, and because a lack of diagnostic warnings does not guarantee that a model has converged, this likely means that the posterior approximations obtained by JAGS are also jeopardized.] If there are only a small number of divergent transitions, it may be sufficient to adjust Stan's settings to enable more fine-grained sampling using the argument `control = list(adapt_delta = <adapt_delta>)` (indeed, this is the default recommendation accompanied by warnings about divergent transitions). However, this approach will significantly slow down model fitting and is not guaranteed to resolve the issue.
+When `brms` outputs warnings that Stan has encountered divergent transitions, this is an indicator that the model's posterior distribution has not been fully explored, meaning that the posterior samples under-represent the true posterior [@betancourt2017].^[Divergent transitions are a diagnostic specific to Hamiltonian Monte Carlo, the model-fitting algorithm used by Stan. Models previously fit using JAGS within the Hmeta-d toolbox may exhibit such warnings when fit with the `hmetad` package. Because JAGS does not provide such diagnostics, and because a lack of diagnostic warnings does not guarantee that a model has converged, this means that the posterior approximations obtained by JAGS may also be jeopardized.] If there are only a small number of divergent transitions, it may be sufficient to adjust Stan's settings to enable more fine-grained sampling using the argument `control = list(adapt_delta = <adapt_delta>)` (indeed, this is the default recommendation accompanied by warnings about divergent transitions). However, this approach will significantly slow down model fitting and is not guaranteed to resolve the issue.
 
-The first potential solution to this problem is to set more informative priors to help bound difficult posterior geometries [@betancourt2017]. By default, `brms` uses Student-$t$ priors over intercepts and participant-level standard deviations and uninformative (i.e., flat) priors over all other parameters. Such uninformative priors not only are unlikely to represent one's beliefs about the model parameters, but they also put substantial probability mass over implausible values (e.g., a flat prior over $M$-ratio makes the values $M = 1$ and $M = 100000$ equally likely). To verify that priors have been set properly, it is helpful to check the output of `prior_summary(m)`. However, above we have chosen moderately informative priors based on knowledge about the experimental design. These constraints already help jointly identify the model parameters, so in this case constraining the prior further is unlikely to resolve convergence issues.
+The first potential solution to this problem is to set more informative priors to help bound difficult posterior geometries [@betancourt2017]. By default, `brms` uses Student-$t$ priors over intercepts and participant-level standard deviations and uninformative (i.e., flat) priors over all other parameters. Such uninformative priors not only are unlikely to represent one's beliefs about the model parameters, but they also put substantial probability mass over implausible values (e.g., a flat prior over $M$-ratio makes the values $M = 1$ and $M = 100000$ equally likely). To verify that priors have been set properly, it is helpful to check the output of `prior_summary(m)`. As described above, here we have chosen moderately informative priors based on knowledge about the experimental design. These constraints already help jointly identify the model parameters, so in this case constraining the prior further is unlikely to resolve convergence issues.
 
-Another potential solution is to investigate which parameters exhibit problematic posterior geometry and eliminate them from the model [@gabry2019]. In the context of the $\meta{d'}$ model, a common source of such problems is that parameters are poorly identified when participants exhibit aberrant behavior. For instance, if a participant only responds "present" (or, "right"), it is impossible to estimate confidence criteria for the opposite response. As another example, it is difficult to estimate $M$-ratio when a participant has chance-level task performance (i.e., $d'=0$), because dividing by zero creates infinite values of $M$-ratio. In our case, however, the divergent transitions are likely due to extreme confidence responding: there are many participants in our data that only use one or two (of six) confidence levels, leaving many cells with zero counts in the aggregated data. Such issues are somewhat mitigated in a multilevel model such as the one we present here, since participant-level estimates are informed by the group-level means. However, if there are enough empty cells, or if the group-level estimates themselves are under-powered, participant-level estimates of the confidence thresholds may still be poorly identified or exhibit degenerate posterior geometries.
+Another potential solution is to investigate which parameters exhibit problematic posterior geometry and eliminate them from the model [@gabry2019]. In the context of the $\meta{d'}$ model, a common source of such problems is that parameters are poorly identified when participants exhibit aberrant behavior. For instance, if a participant only responds "present" (or, "right"), it is impossible to estimate confidence criteria for the opposite response. As another example, it is difficult to estimate $M$-ratio when a participant has chance-level task performance (i.e., $d'=0$), because dividing by zero creates infinite values of $M$-ratio. In our case, however, the divergent transitions are likely due to extreme confidence responding: there are many participants in our data who only use one or two (of six) confidence levels, leaving many cells with zero counts in the aggregated data. Such issues are somewhat mitigated in a multilevel model such as the one we present here, since participant-level estimates are informed by the group-level means. However, if there are enough empty cells, or if the group-level estimates themselves are under-powered, participant-level estimates of the confidence thresholds may still be poorly identified or exhibit degenerate posterior geometries.
 
-In such cases, it may be necessary to either reduce the number of confidence ratings through binning or to exclude participants with highly skewed response patterns, so long as exclusion does not introduce post-treatment bias or other kinds of selection effects [@rohrer2024]. Another alternative is to perform analyses collapsing across participants, with the caveat that collapsed estimates are less likely to generalize across the population [@yarkoni2020]. Many researchers have also used data padding (or edge correction)---imputing artificial trials into the dataset to avoid zero counts---to mitigate similar identifiability issues. However, padding is generally unadviasable as it introduces biases into the estimates of Type I sensitivity, which in turn biases estimates of $M$-ratio [@fleming2017; @hautus1995]. In any case, it is usually necessary to perform robustness checks to ensure the key pattern of results is not sensitive to the data cleaning process.
+In such cases, it may be necessary to either reduce the number of confidence ratings through binning or to exclude participants with highly skewed response patterns, so long as exclusion does not introduce post-treatment bias or other kinds of selection effects [@rohrer2024]. Another alternative is to perform analyses collapsing across participants, with the caveat that collapsed estimates are less likely to generalize across the population [@yarkoni2020]. Many researchers have also used data padding (or edge correction)---imputing artificial trials into the dataset to avoid zero counts---to mitigate similar identifiability issues. However, padding is generally unadvisable as it introduces biases into the estimates of Type I sensitivity, which in turn biases estimates of $M$-ratio [@fleming2017; @hautus1995]. In any case, it is usually necessary to perform robustness checks to ensure the key pattern of results is not sensitive to the data cleaning process.
 
 Such issues can ideally be mitigated prior to data collection using careful experimental designs which encourage participants to (a) perform above chance, (b) use both Type I responses equally, and (c) make full use of the confidence scale. In the absence of these strategies, here we resolve our model convergence issues by binning the confidence data from six to three levels using the same cut-points for all participants^[Alternatively, if metacognitive bias is not of scientific interest, one can bin confidence ratings separately by participant by grouping the data prior to binning.] and by excluding 44 (~9%) participants that used less than 2/3 of possible joint response options.
 
@@ -424,7 +464,7 @@ m <- update(m.prior,
 
 ## Model validation and interpretation
 
-In this section, we demonstrate how to assess model fit and interpret model parameters using posterior retrodictive checks with the `hmetad` package. Before we can interpret the parameters of our model, we first need to verify that it is empirically adequate using a posterior retrodictive check. That is, we would like to know whether the model makes predictions of Type I and Type II responses that resemble the responses in the data. Having already completed a thorough prior predictive check, the posterior retrodictive check is straightforward: simply generate the same estimates and visualizations using the posterior distribution, only this time overlaying the data for comparison. 
+In this section, we demonstrate how to assess model fit and interpret model parameters using posterior retrodictive checks with the `hmetad` package. A posterior retrodictive check compares visualizations of our empirical data with the same visualizations computed from data simulated from the fitted model parameters. A close match indicates that the model is adequately capturing the qualitative features of the data. That is, we would like to know whether the model makes predictions of Type I and Type II responses that resemble the responses in the data. Having already completed a thorough prior predictive check, the posterior retrodictive check is straightforward: simply generate the same estimates and visualizations using the posterior distribution, only this time overlaying the data for comparison. 
 
 As a preliminary check, we can obtain the joint Type I/Type II response probabilities averaged across all participants. Here we focus on joint probabilities (rather than simply Type II probabilities) because they reflect differences in both Type I and Type II parameters.
 
@@ -502,9 +542,9 @@ fig.epred.b <- d |>
   plot_layout(guides = "collect")
 ```
 
-Comparing these probabilities with the empirical probabilities aggregating over participants ([@fig-epred]A), the model predicts Type I and Type II responses quite well. We can also investigate model predictions for individual participants to get an even more informative picture. Looking at an example participant in [@fig-epred]B, we see that the model predictions are somewhat uncertain but also fit the data well. Note that posterior retrodictive checks such as these are meant only to identify model degeneracies that are relevant for the research question at hand. In cases where the model has clear predictive limitations, then, it is up to the researcher to decide whether those limitations reflect violations of relevant modeling assumptions that should be revised before proceeding, or if instead the limitations reflect details outside of the scope of the current project.
+Comparing these probabilities with the empirical probabilities aggregated over participants ([@fig-epred]A), we can see that the model predicts Type I and Type II responses quite well. We can also investigate model predictions for individual participants to get an even more informative picture. Looking at an example participant in [@fig-epred]B, we see that the model predictions are somewhat uncertain but also fit the data well. Note that posterior retrodictive checks such as these are meant only to identify model degeneracies that are relevant for the research question at hand. In cases where the model has clear predictive limitations, then, it is up to the researcher to decide whether those limitations reflect violations of relevant modeling assumptions that should be revised before proceeding, or if instead the limitations reflect details outside of the scope of the current project.
 
-There are countless other kinds of model quantities and visualizations that can contribute to a more complete picture of the empirical adequacy of our model for our research question, including predictions of Type I and Type II probabilities, Type I and Type II Receiver Operating Characteristic curves (ROCs), area under the Type I and Type II ROCs, and mean confidence. Because all of these quantities use a shared interface, checking these other quantities is similar. For example, we can also compute Type II ROCs (plotted in @fig-roc2):
+There are countless other kinds of model quantities and visualizations that can contribute to a more complete picture of the empirical adequacy of our model for our research question, including predictions of Type I and Type II probabilities, Type I and Type II Receiver Operating Characteristic curves (ROCs), area under the Type I and Type II ROCs, and mean confidence. Because all of these quantities use a shared interface, checking them involves a similar process. For example, we can also compute Type II ROCs (plotted in @fig-roc2):
 
 ```{r}
 #| label: roc2_draws
@@ -570,9 +610,9 @@ fig.roc2.b <- newdata |>
 ```
 
 
-Notably, while each of these implied quantities can help understand the limitations of the model, all of these additional quanitities are derived from the joint Type I/Type II response probabilities determined by the signal detection theoretic parameters.
+Notably, while each of these implied quantities can help understand the limitations of the model, they are all derived from the joint Type I/Type II response probabilities determined by the signal detection theoretic parameters.
 
-Now that we have verified that our model can describe the overall distribution of participants' responses and confidence ratings, we can inspect the model to answer the research question posed by @rouault2018: how is anxious depression related to metacognition? As an initial approach, we can display the model summary:
+Now that we have verified that our model can describe the overall distribution of participants' responses and confidence ratings, we can inspect the model to answer the research question posed by @rouault2018: how is anxious-depression related to metacognition? As an initial approach, we can display the model summary:
 
 ```{r}
 #| label: model-summary
@@ -589,7 +629,7 @@ capture.output(print(m))[14:60] |>
 
 This summary is divided into two sections: `Multilevel Hyperparameters` and `Regression Coefficients`. The former displays between-participant standard deviations for each model parameter, as well as between-participant correlations among parameters. The latter displays the coefficients for each parameter describing the population. In both sections, `Estimate` is the posterior mean, `Est.Error` is the posterior standard deviation, `l-95% CI` and `u-95% CI` are the 95% posterior quantiles (i.e., credible intervals), and `Rhat`, `Bulk_ESS` and `Tail_ESS` are convergence diagnostics. Under `Multilevel Hyperparameters`, we find that the participant-level standard deviations are quite small for most parameters, though larger for the confidence criteria, indicating significant participant-level variability in metacognitive bias. In particular, the participant-level standard deviation of $d'$ is close to zero, which reflects the fact that the staircase used to control performance across participants in this experiment was quite successful. We also see strong correlations between participant-level estimates of the confidence criteria, which suggests that confidence responding is highly similar regardless of whether participants respond "left" or "right". 
 
-Looking at the model intercepts, we see generally suboptimal metacognitive efficiency (with $\log(M) < 0$), good task performance overall (with $d' \approx 1.3$), and a slight bias for the left response option (with $c < 0$). A preliminary inspection of the regression coefficients suggests that there are no effects of anxious depression on $M$-ratio, $d'$, or $c$. In contrast, the distances between confidence criteria appear to increase with anxious depression, at least for the first confidence level. 
+Looking at the model intercepts, we see generally suboptimal metacognitive efficiency (with $\log(M) < 0$), good task performance overall (with $d' \approx 1.3$), and a slight bias for the left response option (with $c < 0$). A preliminary inspection of the regression coefficients suggests that there are no effects of anxious-depression on $M$-ratio, $d'$, or $c$. In contrast, the distances between confidence criteria appear to increase with anxious-depression, at least for the first confidence level. 
 
 We can first visualize the group-level estimate of $M$-ratio compared to its prior distribution:
 ```{r}
@@ -607,7 +647,7 @@ draws.mratio <- bind_rows(
 #| echo: false
 #| fig-width: 6
 #| fig-height: 3
-#| fig-cap: Group-level prior (gray) and posterior (orange) distributions of $M$-ratio when anxious depression is at its mean.
+#| fig-cap: Group-level prior (gray) and posterior (orange) distributions of $M$-ratio when anxious-depression is at its mean.
 draws.mratio |>
   mutate(model = factor(model, levels = c("prior", "posterior"))) |>
   ggplot(aes(xdist = M, fill = model)) +
@@ -636,7 +676,7 @@ draws.mratio |>
 
 As seen in @fig-mratio, the posterior distribution of $M$-ratio is much narrower than our prior, meaning that our data are very informative for estimating this parameter. This visualization also confirms the model summary above indicating that $M$-ratio is significantly below its optimal value. 
 
-Next, in order to interpret the regression coefficients further, we will compute model predictions at varying levels of anxious depression:
+Next, in order to interpret the regression coefficients further, we will compute model predictions at varying levels of anxious-depression:
 
 ```{r}
 #| label: linpred_mh
@@ -657,7 +697,7 @@ draws.linpred.participant <- d |>
 
 ```{r}
 #| label: fig-linpred-mh
-#| fig-cap: Model estimates of Type I and Type II parameters as a function of anxious depression.
+#| fig-cap: Model estimates of Type I and Type II parameters as a function of anxious-depression.
 #| apa-note: Lines indicate posterior medians and ribbons indicate 95% posterior quantiles. Points indicate posterior medians of participant-level estimates.
 #| fig-width: 10
 #| fig-height: 5
@@ -690,7 +730,7 @@ draws.linpred |>
     labeller = as_labeller(.labels, default = label_parsed)
   ) +
   theme_metad() +
-  scale_x_continuous("Anxious Depression", expand = expansion()) +
+  scale_x_continuous("Anxious-Depression", expand = expansion()) +
   theme(
     axis.title.y = element_blank(),
     legend.title = element_blank(),
@@ -700,7 +740,7 @@ draws.linpred |>
 
 
 
-Shown in @fig-linpred-mh, it is clear that the relationships between mental health and $M$-ratio, $d'$, and $c$ are small if non-existent. In contrast, there appear to be effects on the confidence criteria, however this is complicated because (a) there are two confidence criteria for each Type I response, (b) the confidence criteria for each response are ordered in opposite directions, and (c) effects on the the confidence criteria include potential effects on the Type I criterion, $c$. To simplify things further, we can compute a measure of metacognitive bias derived from the confidence criteria known as meta-$\Delta$ [@oneill2026]:
+Shown in @fig-linpred-mh, it is clear that the relationships between mental health and $M$-ratio, $d'$, and $c$ are small if non-existent. In contrast, there appear to be effects on the confidence criteria, however this is complicated because (a) there are two confidence criteria for each Type I response, (b) the confidence criteria for each response are ordered in opposite directions, and (c) effects on the the confidence criteria include potential effects on the Type I criterion, $c$. To simplify things further, we can compute a corrected measure of metacognitive bias derived from the confidence criteria known as $\meta{\Delta}$ [@oneill2026]:
 
 
 ```{r}
@@ -723,9 +763,11 @@ draws.bias.participant <- d |>
 
 ```{r}
 #| label: fig-bias
-#| fig-cap: Model estimates of metacognitive bias ($\meta{\Delta}$) as a function of anxious depression. *(A)* Posterior estimates of metacognitive bias at varying levels of anxious depression. *(B)* Group-level prior (gray) and posterior (orange) distributions of the association between anxious depression and metacognitive bias.
+#| fig-cap: Model estimates of metacognitive bias ($\meta{\Delta}$) as a function of anxious-depression. *(A)* Posterior estimates of metacognitive bias at varying levels of anxious-depression. *(B)* Group-level prior (gray) and posterior (orange) distributions of the association between anxious-depression and metacognitive bias.
 #| apa-note: Lines indicate posterior medians and ribbons indicate 95% posterior quantiles. Points indicate posterior medians of participant-level estimates.
 #| echo: false
+#| fig-width: 10
+#| fig-height: 4
 
 fig.bias.a <- draws.bias |>
   median_qi(metacognitive_bias) |>
@@ -735,7 +777,7 @@ fig.bias.a <- draws.bias |>
   geom_line(size = 1.5) +
   ylab(expression("meta-" * Delta)) +
   theme_metad() +
-  scale_x_continuous("Anxious Depression", expand = expansion()) +
+  scale_x_continuous("Anxious-Depression", expand = expansion()) +
   theme(legend.title = element_blank())
 
 contr.bias <- draws.bias |>
@@ -777,18 +819,18 @@ fig.bias.b <- bind_rows(
   plot_annotation(tag_levels = "A")
 ```
 
-@fig-bias makes clear that increases in anxious depression are associated with small increases in metacognitive bias (i.e., the amount of evidence required to make a response with confidence at the mid-point).
+@fig-bias makes clear that increases in anxious-depression are associated with small increases in metacognitive bias (i.e., the amount of evidence required to make a response with confidence at the mid-point).
 
 ## Significance testing
-The final step to answering our research question is to perform significance tests that quantify the amount of evidence for mental-health-related differences in model parameters. Of course, the credible intervals on our previous estimates give us an idea of the probable size of each of these effects. But while credible intervals themselves provide some information about the existence of an effect, they do not provide information about statistical significance [@makowski2019]. So, here we will focus on one approach to Bayesian significance testing: Bayes Factors. In general, Bayes Factors represent the degree to which the data have increased the odds of the alternative hypothesis relative to the null hypothesis. As a special case, when using a point null hypothesis (e.g., that anxious depression has no effect on log $M$-ratio), it is efficient to compute the Bayes Factor using the Savage-Dickey density ratio, that is, by comparing the prior and posterior density of the null value. This process yields $BF>1$ when the data provide support for the alternative hypothesis, $BF<1$ when the data provide support for the null hypothesis, and $BF=1$ when the data do not inform either hypothesis [for more information, see @makowski2019]. 
+The final step to answering our research question is to perform significance tests that quantify the amount of evidence for mental-health-related differences in model parameters. Of course, the credible intervals on our previous estimates give us an idea of the probable size of each of these effects. But while credible intervals themselves provide some information about the existence of an effect, they do not provide information about statistical significance [@makowski2019]. So, here we will focus on one approach to Bayesian significance testing: Bayes Factors. In general, Bayes Factors represent the degree to which the data have increased the odds of the alternative hypothesis relative to the null hypothesis. As a special case, when using a point null hypothesis (e.g., that anxious-depression has no effect on log $M$-ratio), it is efficient to compute the Bayes Factor using the Savage-Dickey density ratio, that is, by comparing the prior and posterior density of the null value. This process yields $BF>1$ when the data provide support for the alternative hypothesis, $BF<1$ when the data provide support for the null hypothesis, and $BF=1$ when the data do not inform either hypothesis [for more information, see @makowski2019]. 
 
-Bayes Factors can be easily computed using the function `describe_posterior` in the `bayestestR` package:
+Bayes Factors can be easily computed using the function `describe_posterior` in the `bayestestR` package [@bayestestR]:
 
 ```{r describe_posterior}
 describe_posterior(m, test = "bf", bf_prior = m.prior, component = "all")
 ```
 
-In line with our visualizations above, the Bayes Factors show evidence against effects of anxious depression on $M$-ratio, $d'$, and $c$, but evidence for mixed effects on the confidence criteria. Specifically, while the confidence criteria for the lowest confidence level are shifted further away with anxious depression, we see moderate evidence against effects on the highest confidence level. Again, to get a clearer picture, we can analyze meta-$\Delta$ instead of the individual confidence criteria. But since meta-$\Delta$ is a derived value from the model (and not directly a modeled parameter), we must compute these contrasts manually using the function `compare_levels` from the `tidybayes` package:
+In line with our visualizations above, the Bayes Factors show evidence for null effects of anxious-depression on $M$-ratio, $d'$, and $c$, but evidence for mixed effects on the confidence criteria. Specifically, while the confidence criteria for the lowest confidence level are shifted further away with anxious-depression, we see moderate evidence against effects on the highest confidence level. Again, to get a clearer picture, we can analyze $\meta{\Delta}$ instead of the individual confidence criteria. Since $\meta{\Delta}$ is a derived value from the model (and not directly a modeled parameter), we must compute these contrasts manually using the function `compare_levels` from the `tidybayes` package:
 
 
 ```{r}
@@ -806,7 +848,7 @@ prior.bias <- prior.bias |>
   rename(prior = metacognitive_bias)
 ```
 
-Next, we need to compute the same set of contrasts using our prior model (code ommitted for brevity). Finally, after merging the two sets of predictions into a single dataframe, we can compute the Bayes Factors using the function `bayestestR::bf_pointnull`:
+Next, we need to compute the same set of contrasts using our prior model (code omitted for brevity). Finally, after merging the two sets of predictions into a single dataframe, we can compute the Bayes Factors using the function `bayestestR::bf_pointnull`:
 
 ```{r}
 #| label: bias_contrast
@@ -815,12 +857,12 @@ contr.bias |>
   mutate(BF = as.numeric(bf_pointnull(metacognitive_bias, prior)))
 ```
 
-This analysis confirms the findings by @rouault2018, namely that there is moderately strong evidence that overall confidence level is decreased with anxious depression. 
+This analysis confirms the findings by @rouault2018, namely that there is moderately strong evidence that overall confidence level (corrected for Type I confounds using the $\meta{\Delta}$ statistic) is decreased with anxious-depression. 
 
 
 
 ## Adding complexity
-Above, we have somewhat simplified our analysis by looking only at associations with anxious depression. But @rouault2018 found two other relevant mental health factors: compulsivity and social withdrawal. Previous implementations would require manual re-coding of the model to incorporate these additional effects.  With the `hmetad` package, however, we can simply include these additional factors as predictors in the model formula and re-fit the model:
+Above, we have somewhat simplified our analysis by looking only at associations with anxious-depression. But @rouault2018 found two other relevant mental health factors: compulsivity and social withdrawal. Previous implementations would require manual re-coding of the model to incorporate these additional effects.  With the `hmetad` package, however, we can simply include these additional factors as predictors in the model formula and re-fit the model:
 
 ```{r}
 #| label: refit_mh
@@ -853,7 +895,7 @@ capture.output(print(m.full))[14:74] |>
   writeLines()
 ```
 
-As we can see from the model summary, the other mental health factors also appear only to affect the confidence criteria. As before, we can visualize group-level estimates of metacognitive bias at varying levels of each factor while holding the others constant:
+As we can see from the model summary, the other mental health factors also appear only to be associated with the confidence criteria. As before, we can visualize group-level estimates of metacognitive bias at varying levels of each factor while holding the others constant:
 
 
 ```{r}
@@ -891,7 +933,7 @@ draws.bias <- bind_rows(
     ungroup() |>
     select(anxious_depression, metacognitive_bias) |>
     rename(x = anxious_depression) |>
-    mutate(xlab = "Anxious Depression"),
+    mutate(xlab = "Anxious-Depression"),
   draws.bias.co |>
     ungroup() |>
     select(compulsivity, metacognitive_bias) |>
@@ -934,7 +976,7 @@ prior.bias.sw <- newdata.sw |>
   mutate(model = "prior")
 
 contr.bias <- tibble(
-  factor = c("Anxious Depression", "Compulsivity", "Social Withdrawal"),
+  factor = c("Anxious-Depression", "Compulsivity", "Social Withdrawal"),
   posterior = c(contr.bias.ad$metacognitive_bias, contr.bias.co$metacognitive_bias, contr.bias.sw$metacognitive_bias),
   prior = c(prior.bias.ad$metacognitive_bias, prior.bias.co$metacognitive_bias, prior.bias.sw$metacognitive_bias)
 )
@@ -952,18 +994,18 @@ draws.bias.participant <- d |>
 
 ```{r}
 #| label: fig-bias-mh
-#| fig-cap: Model estimates of metacognitive bias ($\meta{\Delta}$) as a function of anxious depression, compulsivity, and social withdrawal. *(A)* Posterior estimates of metacognitive bias at varying levels of anxious depression. *(B)* Group-level prior (gray) and posterior (orange) distributions of the association between anxious depression and metacognitive bias.
+#| fig-cap: Model estimates of metacognitive bias ($\meta{\Delta}$) as a function of anxious-depression, compulsivity, and social withdrawal. *(A)* Posterior estimates of metacognitive bias at varying levels of anxious-depression. *(B)* Group-level prior (gray) and posterior (orange) distributions of the association between anxious-depression and metacognitive bias.
 #| apa-note: Lines indicate posterior medians and ribbons indicate 95% posterior quantiles. Points indicate posterior medians of participant-level estimates.
-#| fig-width: 8
-#| fig-height: 8
 #| echo: false
+#| fig-width: 10
+#| fig-height: 8
 
 fig.bias.mh.a <- draws.bias |>
   median_qi(metacognitive_bias) |>
   ggplot(aes(x = x, y = metacognitive_bias)) +
   geom_point(aes(x = anxious_depression),
     shape = 16, size = .75, alpha = .66,
-    data = draws.bias.participant |> mutate(xlab = "Anxious Depression")
+    data = draws.bias.participant |> mutate(xlab = "Anxious-Depression")
   ) +
   geom_point(aes(x = compulsivity),
     shape = 16, size = .75, alpha = .66,
@@ -976,7 +1018,7 @@ fig.bias.mh.a <- draws.bias |>
   geom_ribbon(aes(ymin = .lower, ymax = .upper, fill = xlab),
     alpha = .75, show.legend = FALSE
   ) +
-  geom_line(size = 1.5) +
+  geom_line(linewidth = 1.5) +
   ylab(expression("meta-" * Delta)) +
   theme_metad() +
   scale_x_continuous("Standardized value", expand = expansion()) +
@@ -1025,7 +1067,7 @@ contr.bias |>
 ```
 
 
-When including all three factors in the model, we now see very strong evidence that confidence levels are decreased with anxious depression and increased with compulsivity. 
+When including all three factors in the model, we now see very strong evidence for a decrease in confidence levels associated with anxious-depression and an increase in confidence levels associated with compulsivity. This analysis validates the original findings by @rouault2018 while removing potential confounds of Type I sensitivity, Type I response bias, and metacognitive sensitivity, as well as controlling for participant-level uncertainty.
 
-We end this section by pointing out that the analysis above is merely an example of the kinds of analyses one can perform with the `hmetad` package: depending on one's research question, experimental design, and preferences for statistical tests and software, one may prefer to perform a completely different set of statistical analyses on the fitted model.
+We end this section by pointing out that the analysis above is merely an example of the kinds of analyses one can perform with the `hmetad` package: depending on one's research question, experimental design, and preferences for statistical tests and software, one is able to perform a wide range of statistical analyses on the fitted model.  For example, the interpretation of associations between metacognitive bias and mental health remains debated due to additional confounding of mental health factors with inattentiveness, response biases, and measurement uncertainty [@sarna2026; @gillan2026; @sarna2026b]. By allowing flexible extensions of the $\meta{d'}$ model, the `hmetad` package opens the possibility for future work to better eliminate these remaining confounds through directly modeling uncertainty in the latent factors in a structural equation modeling framework [@westfall2016]. 
 
