@@ -59,6 +59,6 @@ filters:
   - tikz
 
 tikz:
-  cache: false
+  cache: true
   save-tex: false
   svg-command: "pdf2svg {input} {output}"  # use pdf2svg because inkscape breaks fonts
