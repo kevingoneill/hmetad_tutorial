@@ -259,11 +259,11 @@ $$
 \end{align*}
 $$
 
-Note that because this distribution is conditional on the stimulus $S$, the $\meta{d'}$ model does not model the base rate $P(S=s)$. We consider two specifications of the model likelihood. When trial-level effects are of interest, one can fit the $\meta{d'}$ model to individual trials using a categorical distribution. Where $\mathcal{L}$ is the likelihood, $\bm{\theta} = \{d', c, \meta{d'}, \meta{c}, \metabf{c_2^0}, \metabf{c_2^1}\}$, and $\bm{s}$, $\bm{r}$, and $\bm{c}$ vectors of observed stimuli, Type I responses, and Type II responses:
+Note that because this distribution is conditional on the stimulus $S$, the $\meta{d'}$ model does not model the base rate $P(S=s)$. We consider two specifications of the model likelihood. When trial-level effects are of interest, one can fit the $\meta{d'}$ model to individual trials using a categorical distribution. Where $\mathcal{L}$ is the likelihood, $\bm{{\theta}} = \{d', c, \meta{d'}, \meta{c}, \metabf{c_2^0}, \metabf{c_2^1}\}$, and $\bm{s}$, $\bm{r}$, and $\bm{c}$ vectors of observed stimuli, Type I responses, and Type II responses:
 
 $$
 \begin{align*}
-    \mathcal{L}(\bm{\theta} \;\vert\; S=\bm{s},R=\bm{r},C=\bm{c}) &= \prod_{n=1}^N P(R=r_n, C=c_n \;\vert\; S=s_n)
+    \mathcal{L}(\bm{{\theta}} \;\vert\; S=\bm{s},R=\bm{r},C=\bm{c}) &= \prod_{n=1}^N P(R=r_n, C=c_n \;\vert\; S=s_n)
 \end{align*}
 $$
 
@@ -271,7 +271,7 @@ However, in this formulation the number of times each conditional probability is
 
 $$
 \begin{align*}
-    \mathcal{L}(\bm{\theta} \;\vert\; \bm{N}) &\propto \prod_{s,r,c} P(R=r, C=c \;\vert\; S=s)^{N_{s,r,c}}
+    \mathcal{L}(\bm{{\theta}} \;\vert\; \bm{N}) &\propto \prod_{s,r,c} P(R=r, C=c \;\vert\; S=s)^{N_{s,r,c}}
 \end{align*}
 $$
 
@@ -307,7 +307,7 @@ In principle, one could treat $\meta{c}$ as a free parameter reflecting the Type
 
 
 ## Parameterization in the `hmetad` package
-As described above, the likelihood of the $\meta{d'}$ model is defined in terms of is parameters, $\bm{\theta} = \{d', c, \meta{d'}, \meta{c}, \metabf{c_2^0}, \metabf{c_2^1}\}$. To enable efficient model fitting, the `hmetad` package uses an alternative parameterization that derives these parameters from transformed variables.
+As described above, the likelihood of the $\meta{d'}$ model is defined in terms of is parameters, $\bm{{\theta}} = \{d', c, \meta{d'}, \meta{c}, \metabf{c_2^0}, \metabf{c_2^1}\}$. To enable efficient model fitting, the `hmetad` package uses an alternative parameterization that derives these parameters from transformed variables.
 
 First, instead of fitting $\meta{d'}$ directly, the `hmetad` package instead models the $M$-ratio, $M = \frac{\meta{d'}}{d'}$. To ensure that $0 \le M \le \infty$, the $M$-ratio is modeled with a logarithmic link function.^[This constraint can be relaxed by setting the argument `allow_negative_values=TRUE`, which models $M$-ratio on its natural scale (i.e., using the identity link function).] In this parameterization, one can compute $\meta{d'}$ using the transformation $\meta{d'} = Md'$.
 
@@ -340,25 +340,25 @@ As with the $M$-ratio, the distances $\delta\meta{c_{2,k}^0}$ and $\delta\meta{c
 
 
 ### Including predictors
-The primary benefit of the `hmetad` package is that it specifies the $\meta{d'}$ model as a generalized linear model, allowing users to specify model parameters as a linear function of observed variables. For instance, where $\bm{X_\varphi}$ and $\beta_\varphi$ are the design matrix and coefficient vector for each parameter $\varphi$, the `hmetad` package uses the linear model:
+The primary benefit of the `hmetad` package is that it specifies the $\meta{d'}$ model as a generalized linear model, allowing users to specify model parameters as a linear function of observed variables. For instance, where $\bm{{X_\varphi}}$ and $\beta_\varphi$ are the design matrix and coefficient vector for each parameter $\varphi$, the `hmetad` package uses the linear model:
 $$
 \begin{align*}
-    \log(M) &= \bm{X_M}\beta_M \\
-    d' &= \bm{X_{d'}}\beta_{d'} \\
-    c &= \bm{X_c}\beta_c \\
-    \log(\delta\meta{c_{2,k}^0}) &= \bm{X_{\delta\metabf{c_{2,k}^0}}}\beta_{\delta\meta{c_{2,k}^0}} \\
-    \log(\delta\meta{c_{2,k}^1}) &= \bm{X_{\delta\metabf{c_{2,k}^1}}}\beta_{\delta\meta{c_{2,k}^1}}
+    \log(M) &= \bm{{X_M}}\beta_M \\
+    d' &= \bm{{X_{d'}}}\beta_{d'} \\
+    c &= \bm{{X_c}}\beta_c \\
+    \log(\delta\meta{c_{2,k}^0}) &= \bm{{X_{\delta\metabf{c_{2,k}^0}}}}\beta_{\delta\meta{c_{2,k}^0}} \\
+    \log(\delta\meta{c_{2,k}^1}) &= \bm{{X_{\delta\metabf{c_{2,k}^1}}}}\beta_{\delta\meta{c_{2,k}^1}}
 \end{align*}
 $$
 
-Importantly, the `hmetad` package allows for the design matrices to differ for each model parameter. As with any other `brms` family, it is also possible to include multilevel (or hierarchical) structure [@buerkner2018]. Where $\bm{Z_\varphi}$ and $\gamma_\varphi$ are the group-level design matrix and coefficient vector for each parameter $\varphi$:
+Importantly, the `hmetad` package allows for the design matrices to differ for each model parameter. As with any other `brms` family, it is also possible to include multilevel (or hierarchical) structure [@buerkner2018]. Where $\bm{{Z_\varphi}}$ and $\gamma_\varphi$ are the group-level design matrix and coefficient vector for each parameter $\varphi$:
 $$
 \begin{align*}
-    \log(M) &= \bm{X_M}\beta_M \;+\; \bm{Z_M}\gamma_M \\
-    d' &= \bm{X_{d'}}\beta_{d'} \;+\; \bm{Z_{d'}}\gamma_{d'} \\
-    c &= \bm{X_c}\beta_c \;+\; \bm{Z_c}\gamma_c \\
-    \log(\delta\meta{c_{2,k}^0}) &= \bm{X_{\delta\metabf{c_{2,k}^0}}}\beta_{\delta\meta{c_{2,k}^0}} \;+\; \bm{Z_{\delta\metabf{c_{2,k}^0}}}\gamma_{\delta\meta{c_{2,k}^0}} \\
-    \log(\delta\meta{c_{2,k}^1}) &= \bm{X_{\delta\metabf{c_{2,k}^1}}}\beta_{\delta\meta{c_{2,k}^1}} \;+\; \bm{Z_{\delta\metabf{c_{2,k}^1}}}\gamma_{\delta\meta{c_{2,k}^1}}
+    \log(M) &= \bm{{X_M}}\beta_M \;+\; \bm{{Z_M}}\gamma_M \\
+    d' &= \bm{{X_{d'}}}\beta_{d'} \;+\; \bm{{Z_{d'}}}\gamma_{d'} \\
+    c &= \bm{{X_c}}\beta_c \;+\; \bm{{Z_c}}\gamma_c \\
+    \log(\delta\meta{c_{2,k}^0}) &= \bm{{X_{\delta\metabf{c_{2,k}^0}}}}\beta_{\delta\meta{c_{2,k}^0}} \;+\; \bm{{Z_{\delta\metabf{c_{2,k}^0}}}}\gamma_{\delta\meta{c_{2,k}^0}} \\
+    \log(\delta\meta{c_{2,k}^1}) &= \bm{{X_{\delta\metabf{c_{2,k}^1}}}}\beta_{\delta\meta{c_{2,k}^1}} \;+\; \bm{{Z_{\delta\metabf{c_{2,k}^1}}}}\gamma_{\delta\meta{c_{2,k}^1}}
 \end{align*}
 $$
 

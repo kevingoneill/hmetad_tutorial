@@ -1,18 +1,24 @@
 -- This filter adds a refdiv if there is a Reference header but no refdiv
 
-local utilsapa = require("utilsapa")
-
 local hasrefdiv = false
 local referenceword = "References"
+local appendixword = "Appendix"
 local appendixcount = 0
 local n_citation = 0
 local hasrefheader = false
--- Identifier prefixes that make a citation a cross reference rather than a
--- work cited: every kind of float, sections, appendices and equations.
-local xrefprefixes = { sec = true, apx = true, eq = true }
 
--- The class crossrefprefix.lua gives the heading it writes over each appendix
-local kAppendixClass = "apa-appendix"
+-- Change Appendix A to Appendix if there is only one appendix.
+local fixloneappendix = function(h)
+  if appendixcount == 1 then
+    if h.level == 1 then
+      hcontent = pandoc.utils.stringify(h.content)
+      if hcontent == appendixword .. " A" or hcontent == "Appendix A" then
+        h.content = h.content[1]
+        return h
+      end
+    end
+  end
+end
 
 return {
   {
@@ -20,10 +26,14 @@ return {
       if meta.nocite then
         n_citation = 1
       end
-      referenceword = utilsapa.lang(meta, "section-title-references", referenceword)
-      appendixcount = tonumber(utilsapa.stringify(meta["apa-appendix-count"], "0")) or 0
-      for kind in pairs(utilsapa.float_prefixes(meta)) do
-        xrefprefixes[kind] = true
+      if meta.language then
+        -- Is there another word for reference section?
+        if meta.language["section-title-references"] then
+          referenceword = pandoc.utils.stringify(meta.language["section-title-references"])
+        end
+        if meta.language["crossref-apx-prefix"] then
+          appendixword = pandoc.utils.stringify(meta.language["crossref-apx-prefix"])
+        end
       end
     end
   },
@@ -37,6 +47,9 @@ return {
   },
   {
     Header = function(h)
+      if h.attr.attributes.appendixtitle then
+        appendixcount = appendixcount + 1
+      end
       if h.content and ((pandoc.utils.stringify(h.content) == referenceword) or (pandoc.utils.stringify(h.content) == "References")) then
         hasrefheader = true
         if hasrefdiv then
@@ -51,17 +64,10 @@ return {
       end
     end
   },
+  { Header = fixloneappendix },
   {
-    -- A cross reference is written as a citation, but it cites no work, and a
-    -- paper that has only those has no references to list.
     Cite = function(c)
-      for _, citation in ipairs(c.citations) do
-        local prefix = citation.id:match("^(%a+)%-")
-        if not (prefix and xrefprefixes[prefix]) then
-          n_citation = n_citation + 1
-          return nil
-        end
-      end
+      n_citation = n_citation + 1
     end
   },
   {
@@ -85,7 +91,7 @@ return {
           else 
             for i = 1, #doc.blocks, 1 do
 
-              if doc.blocks[i].tag == "Header" and doc.blocks[i].classes:includes(kAppendixClass) then
+              if doc.blocks[i].tag == "Header" and doc.blocks[i].level == 1 and ((pandoc.utils.stringify(doc.blocks[i].content[1]) == appendixword) or (pandoc.utils.stringify(doc.blocks[i].content[1]) == "Appendix")) then
                 table.insert(doc.blocks, i, refdiv)
                 table.insert(doc.blocks, i, refheader)
                 break

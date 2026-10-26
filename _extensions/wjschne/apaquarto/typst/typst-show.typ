@@ -1,16 +1,4 @@
-#show: document => $if(documentmode)$$documentmode$$else$man$endif$(
-$if(title)$
-  title: [$title$],
-$endif$
-$if(suppress-author)$
-$else$
-$if(by-author)$
-  authors: ($for(by-author)$$if(it.apaauthordisplay)$[$it.apaauthordisplay$],$endif$$endfor$),
-$endif$
-$endif$
-$if(keywords)$
-  keywords: ($for(keywords)$"$keywords$",$endfor$),
-$endif$
+#show: document => $documentmode$(
 $if(suppress-short-title)$
 $else$
 $if(shorttitle)$
@@ -21,9 +9,6 @@ $if(title)$
 $endif$
 $endif$
 $endif$
-$if(jou-running-authors)$
-  runningauthors: "$jou-running-authors$",
-$endif$
 $if(papersize)$
   paper: "$papersize$",
 $endif$
@@ -31,16 +16,10 @@ $if(margin)$
   margin: ($for(margin/pairs)$$margin.key$: $margin.value$,$endfor$),
 $endif$
 $if(mainfont)$
-  font: ($for(mainfont)$"$mainfont$",$endfor$),
-$endif$
-$if(monofont)$
-  monofont: ($for(monofont)$"$monofont$",$endfor$),
+  font: ("$mainfont$",),
 $endif$
 $if(fontsize)$
   fontsize: $fontsize$,
-$endif$
-$if(apa-table-spacing)$
-  tablespacing: "$apa-table-spacing$",
 $endif$
 $if(leading)$
   leading: $leading$,

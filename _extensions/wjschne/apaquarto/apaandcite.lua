@@ -20,8 +20,11 @@ local utilsapa = require("utilsapa")
 
 -- Get alternate separator, if it exists
 local function get_and(m)
-  andreplacement = utilsapa.lang(m, "citation-last-author-separator",
-    andreplacement)
+  if m.language and m.language["citation-last-author-separator"] then
+    andreplacement = utilsapa.stringify(
+      m.language["citation-last-author-separator"],
+      andreplacement)
+  end
   if m["link-citations"] then
     makelinks = true
   end

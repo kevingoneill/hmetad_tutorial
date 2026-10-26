@@ -2,7 +2,7 @@ Computation with raw probabilities often leads to numerical issues like underflo
 
 $$
 \begin{align*}
-    \ell(\bm{\theta} \;\vert\; S=\bm{s},R=\bm{r},C=\bm{c}) &= \log\mathcal{L}(\bm{\theta} \;\vert\; S=\bm{s},R=\bm{r},C=\bm{c}) \\
+    \ell(\bm{{\theta}} \;\vert\; S=\bm{{s}},R=\bm{{r}},C=\bm{{c}}) &= \log\mathcal{L}(\bm{{\theta}} \;\vert\; S=\bm{{s}},R=\bm{{r}},C=\bm{{c}}) \\
     &= \log\prod_{n=1}^N P(R=r_n, C=c_n \;\vert\; S=s_n) \\
     &= \sum_{n=1}^N \log P(R=r_n, C=c_n \;\vert\; S=s_n)
 \end{align*}
@@ -12,7 +12,7 @@ And for the multinomial likelihood:
 
 $$
 \begin{align*}
-    \ell(\bm{\theta} \;\vert\; \bm{N}) &= \log \mathcal{L}(\bm{\theta} \;\vert\; \bm{N}) \\
+    \ell(\bm{{\theta}} \;\vert\; \bm{{N}}) &= \log \mathcal{L}(\bm{{\theta}} \;\vert\; \bm{{N}}) \\
     &\propto \log \prod_{s,r,c} P(R=r, C=c \;\vert\; S=s)^{N_{s,r,c}} \\
     &= \sum_{s,r,c} N_{s,r,c} \log P(R=r, C=c \;\vert\; S=s)
 \end{align*}
@@ -68,11 +68,11 @@ $$
 \end{align*}
 $$
 
-Here, each term is the logarithm of either the cumulative distribution function, the complementary cumulative distribution function, or the difference between cumulative distribution functions of $\mathcal{D}$. Stan has built-in functions for the logarithm of the (complementary) cumulative distribution function of most distributions (e.g., the standard normal distribution). So, all that is needed is to compute the difference on the log scale. The `hmetad` function accomplishes this through the Stan function $\texttt{log\_diff\_exp}(x,y) = \log(e^x - e^y)$, in particular:
+Here, each term is the logarithm of either the cumulative distribution function, the complementary cumulative distribution function, or the difference between cumulative distribution functions of $\mathcal{D}$. Stan has built-in functions for the logarithm of the (complementary) cumulative distribution function of most distributions (e.g., the standard normal distribution). So, all that is needed is to compute the difference on the log scale. The `hmetad` package accomplishes this through the Stan function $\texttt{log\_diff\_exp}(x,y) = \log(e^x - e^y)$, in particular:
 
 $$
 \begin{align*}
-    \log\left[F_\mathcal{D}(c_1) - F_\mathcal{D}(c_2) \right] = \texttt{log\_diff\_exp}\!\left(\log F_\mathcal{D}(c_1), \log F_\mathcal{D}(c_2)\right)
+    \log\left[F_{\mathcal{D}}(c_1) - F_{\mathcal{D}}(c_2) \right] = \texttt{log\_diff\_exp}\!\left(\log F_{\mathcal{D}}(c_1), \log F_{\mathcal{D}}(c_2)\right)
 \end{align*}
 $$
 

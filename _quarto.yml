@@ -14,8 +14,8 @@ format:
     fig-height: 4
     fig-dpi: 600        
   apaquarto-pdf:
-#    documentmode: man   # use this format for manuscript submission
-    documentmode: doc   # use this format for publishing
+    documentmode: doc   # use for publishing
+#    documentmode: man   # use for manuscript
     fontsize: 10pt
     keep-tex: false
     fig-format: pdf

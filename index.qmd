@@ -36,7 +36,7 @@ keywords:
 author-note:
   disclosures:
     financial-support: "SMF is a CIFAR Fellow in the Brain, Mind and Consciousness Program, and funded by UK Research and Innovation (UKRI) under the UK government’s Horizon Europe funding guarantee (selected as ERC Consolidator, grant number 101043666)."
-    data-sharing: All data, materials, and code are available at <https://github.com/kevingoneill/hmetad_tutorial>. This manuscript is available in other formats at <https://kevingoneill.github.io/hmetad_tutorial/>.
+    data-sharing: All data, materials, and code are available at <https://github.com/metacoglab/hmetad_tutorial>. This manuscript is available in other formats at <https://metacoglab.github.io/hmetad_tutorial/>.
     conflict-of-interest: The authors have no conflicts of interest to declare.
 ---
 
@@ -103,10 +103,10 @@ N/A
 N/A
 
 ## Availability of data and materials
-All data and materials are available at <https://github.com/kevingoneill/hmetad_tutorial>.
+All data and materials are available at <https://github.com/metacoglab/hmetad_tutorial>.
 
 ## Code availability
-All code for this manuscript is available at <https://github.com/kevingoneill/hmetad_tutorial>. The `hmetad` package is openly stored in the CRAN repository (<https://cran.r-project.org/package=hmetad>) and on GitHub (<https://github.com/metacoglab/hmetad>).
+All code for this manuscript is available at <https://metacoglab.github.io/hmetad_tutorial>. The `hmetad` package is openly stored in the CRAN repository (<https://cran.r-project.org/package=hmetad>) and on GitHub (<https://github.com/metacoglab/hmetad>).
 
 
 # References
