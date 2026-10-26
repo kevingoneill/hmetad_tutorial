@@ -188,6 +188,16 @@ window.Quarto = {
   <li><a href="#adding-complexity" id="toc-adding-complexity" class="nav-link" data-scroll-target="#adding-complexity">Adding complexity</a></li>
   </ul></li>
   <li><a href="#discussion" id="toc-discussion" class="nav-link" data-scroll-target="#discussion">Discussion</a></li>
+  <li><a href="#declarations" id="toc-declarations" class="nav-link" data-scroll-target="#declarations">Declarations</a>
+  <ul class="collapse">
+  <li><a href="#funding" id="toc-funding" class="nav-link" data-scroll-target="#funding">Funding</a></li>
+  <li><a href="#conflicts-of-interest" id="toc-conflicts-of-interest" class="nav-link" data-scroll-target="#conflicts-of-interest">Conflicts of interest</a></li>
+  <li><a href="#ethics-approval" id="toc-ethics-approval" class="nav-link" data-scroll-target="#ethics-approval">Ethics approval</a></li>
+  <li><a href="#consent-to-participate" id="toc-consent-to-participate" class="nav-link" data-scroll-target="#consent-to-participate">Consent to participate</a></li>
+  <li><a href="#consent-for-publication" id="toc-consent-for-publication" class="nav-link" data-scroll-target="#consent-for-publication">Consent for publication</a></li>
+  <li><a href="#availability-of-data-and-materials" id="toc-availability-of-data-and-materials" class="nav-link" data-scroll-target="#availability-of-data-and-materials">Availability of data and materials</a></li>
+  <li><a href="#code-availability" id="toc-code-availability" class="nav-link" data-scroll-target="#code-availability">Code availability</a></li>
+  </ul></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   <li>Appendix</li>
   <li><a href="#apx-ll" id="toc-apx-ll" class="nav-link" data-scroll-target="#apx-ll">Log likelihood of the <span class="math inline">\textrm{meta-}d'</span> model</a></li>
@@ -225,6 +235,7 @@ window.Quarto = {
 <h1 class="unnumbered unlisted AuthorNote">Author Note</h1>
 <p>Kevin O’Neill <img src="_extensions/wjschne/apaquarto/ORCID-iD_icon-vector.svg" id="orcid" class="img-fluid" style="width:4.23mm" alt="Orcid ID Logo: A green circle with white letters ID"> <a href="https://orcid.org/0000-0001-7401-9802">https://orcid.org/0000-0001-7401-9802</a></p>
 <p>Stephen M. Fleming <img src="_extensions/wjschne/apaquarto/ORCID-iD_icon-vector.svg" id="orcid" class="img-fluid" style="width:4.23mm" alt="Orcid ID Logo: A green circle with white letters ID"> <a href="https://orcid.org/0000-0003-0233-4891">https://orcid.org/0000-0003-0233-4891</a></p>
+<p>All data, materials, and code are available at <a href="https://github.com/metacoglab/hmetad_tutorial" class="uri">https://github.com/metacoglab/hmetad_tutorial</a>. This manuscript is available in other formats at <a href="https://metacoglab.github.io/hmetad_tutorial/" class="uri">https://metacoglab.github.io/hmetad_tutorial/</a>. The authors have no conflicts of interest to declare. SMF is a CIFAR Fellow in the Brain, Mind and Consciousness Program, and funded by UK Research and Innovation (UKRI) under the UK government’s Horizon Europe funding guarantee (selected as ERC Consolidator, grant number 101043666).</p>
 <p>Correspondence concerning this article should be addressed to Kevin O’Neill, Department of Experimental Psychology, University College London, 26 Bedford Way, London, United Kingdom, Email: <a href="mailto:kevin.o’neill@ucl.ac.uk">kevin.o’neill@ucl.ac.uk</a></p>
 <br>
 </section>
@@ -234,7 +245,7 @@ window.Quarto = {
 <p>A longstanding goal in metacognition research is the quantification of confidence-related parameters independently from task performance. While there is now a proliferation of generative models of confidence in numerous psychological tasks, the meta-<span class="math inline">d'</span> model remains a popular approach to estimating metacognitive sensitivity and metacognitive bias within a signal detection theoretic framework. However, as questions in metacognition research increase in complexity, it remains an ongoing challenge to develop extensions of the meta-<span class="math inline">d'</span> model built to deal with longitudinal, repeated-measures, or other complex experimental designs. Here we introduce the open-source R package <code>hmetad</code>, which allows users to fit the meta-<span class="math inline">d'</span> model for a wide range of experimental designs using a familiar formula syntax. We also review how the meta-<span class="math inline">d'</span> model can be validated in a Bayesian workflow which investigates posterior estimates of key parameters. Overall, the <code>hmetad</code> package offers a comprehensive interface to fitting, evaluating, and visualizing signal detection theoretic models of metacognition.</p>
 </div>
 <p><em>Keywords</em>: metacognition, Bayesian statistics, multilevel modeling</p>
-<p><em>Word Count</em>: 12490</p>
+<p><em>Word Count</em>: 12589</p>
 <br>
 </section>
 <section id="firstheader" class="level1 title unnumbered">
@@ -268,7 +279,7 @@ window.Quarto = {
     \end{cases}
 \end{align*}
 </span></p>
-<div id="fig-paradigm" class="quarto-float quarto-figure quarto-figure-center FigureWithoutNote" prefix="" data-fignum="1" data-custom-style="FigureWithoutNote">
+<div id="fig-paradigm" class="quarto-float quarto-figure quarto-figure-center FigureWithoutNote" data-fignum="1" prefix="" data-custom-style="FigureWithoutNote">
 <figure class="quarto-float quarto-float-fig figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-fig" id="fig-paradigm-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="FigureTitle" data-custom-style="FigureTitle">
@@ -289,7 +300,7 @@ window.Quarto = {
 <p>Given the design above, the <span class="math inline">\textrm{meta-}d'</span> model aims to explain the distribution of Type I and Type II responses. Early descriptions of the model stressed that it was not intended to be a generative model; initially, it was simply meant to describe (a) the relation between Type I responses and the stimulus, and (b) the relation between Type II responses and the accuracy of the Type I responses. However, over time this characterization has shifted to an understanding that the <span class="math inline">\textrm{meta-}d'</span> model is sensitive to a number of generative assumptions, indicating that it is not in fact a theory-free model <span class="citation" data-cites="guggenmos2021 rausch2023">(<a href="#ref-guggenmos2021" role="doc-biblioref">Guggenmos, 2021</a>; <a href="#ref-rausch2023" role="doc-biblioref">Rausch et al., 2026</a>)</span>. Keeping this in mind, we next overview the statistical process underlying the <span class="math inline">\textrm{meta-}d'</span> model <a href="#fig-metad-model" class="quarto-xref" aria-expanded="false">Figure&nbsp;2</a>, identifying relevant assumptions along the way.</p>
 <div class="cell FigureWithoutNote" data-custom-style="FigureWithoutNote">
 <div class="cell-output-display">
-<div id="fig-metad-model" class="quarto-float quarto-figure quarto-figure-center" prefix="" data-fignum="2">
+<div id="fig-metad-model" class="quarto-float quarto-figure quarto-figure-center" data-fignum="2" prefix="">
 <figure class="quarto-float quarto-float-fig figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-fig" id="fig-metad-model-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="FigureTitle" data-custom-style="FigureTitle">
@@ -391,16 +402,16 @@ window.Quarto = {
     P(R=r, C=c \;\vert\; S=s) = P(R=r \;\vert\; S=s) \; P(C=c \;\vert\; S=s, R=r)
 \end{align*}
 </span></p>
-<p>Note that because this distribution is conditional on the stimulus <span class="math inline">S</span>, the <span class="math inline">\textrm{meta-}d'</span> model does not model the base rate <span class="math inline">P(S=s)</span>. We consider two specifications of the model likelihood. When trial-level effects are of interest, one can fit the <span class="math inline">\textrm{meta-}d'</span> model to individual trials using a categorical distribution. Where <span class="math inline">\mathcal{L}</span> is the likelihood, <span class="math inline">\bm{\theta} = \{d', c, \textrm{meta-}d', \textrm{meta-}c, \textbf{meta-}\mathbf{c_2^0}, \textbf{meta-}\mathbf{c_2^1}\}</span>, and <span class="math inline">\bm{s}</span>, <span class="math inline">\bm{r}</span>, and <span class="math inline">\bm{c}</span> vectors of observed stimuli, Type I responses, and Type II responses:</p>
+<p>Note that because this distribution is conditional on the stimulus <span class="math inline">S</span>, the <span class="math inline">\textrm{meta-}d'</span> model does not model the base rate <span class="math inline">P(S=s)</span>. We consider two specifications of the model likelihood. When trial-level effects are of interest, one can fit the <span class="math inline">\textrm{meta-}d'</span> model to individual trials using a categorical distribution. Where <span class="math inline">\mathcal{L}</span> is the likelihood, <span class="math inline">\bm{{\theta}} = \{d', c, \textrm{meta-}d', \textrm{meta-}c, \textbf{meta-}\mathbf{c_2^0}, \textbf{meta-}\mathbf{c_2^1}\}</span>, and <span class="math inline">\bm{s}</span>, <span class="math inline">\bm{r}</span>, and <span class="math inline">\bm{c}</span> vectors of observed stimuli, Type I responses, and Type II responses:</p>
 <p><span class="math display">
 \begin{align*}
-    \mathcal{L}(\bm{\theta} \;\vert\; S=\bm{s},R=\bm{r},C=\bm{c}) &amp;= \prod_{n=1}^N P(R=r_n, C=c_n \;\vert\; S=s_n)
+    \mathcal{L}(\bm{{\theta}} \;\vert\; S=\bm{s},R=\bm{r},C=\bm{c}) &amp;= \prod_{n=1}^N P(R=r_n, C=c_n \;\vert\; S=s_n)
 \end{align*}
 </span></p>
 <p>However, in this formulation the number of times each conditional probability is computed is proportional to the number of trials with the same stimulus, Type I response, and Type II response. As noted by <span class="citation" data-cites="maniscalco2014">Maniscalco and Lau (<a href="#ref-maniscalco2014" role="doc-biblioref">2014</a>)</span>, it is often more efficient to use a multinomial likelihood over the aggregated data instead. Where <span class="math inline">N_{s,r,c}</span> is the number of trials with stimulus <span class="math inline">S=s</span>, Type I response <span class="math inline">R=r</span>, and Type II response <span class="math inline">C=c</span>:</p>
 <p><span class="math display">
 \begin{align*}
-    \mathcal{L}(\bm{\theta} \;\vert\; \bm{N}) &amp;\propto \prod_{s,r,c} P(R=r, C=c \;\vert\; S=s)^{N_{s,r,c}}
+    \mathcal{L}(\bm{{\theta}} \;\vert\; \bm{N}) &amp;\propto \prod_{s,r,c} P(R=r, C=c \;\vert\; S=s)^{N_{s,r,c}}
 \end{align*}
 </span></p>
 <p>For numerical stability, the <code>hmetad</code> package evaluates the model likelihood on the logarithmic scale. For a detailed derivation of the log likelihood used in the model fitting code, see <a href="#apx-ll" class="quarto-xref" aria-expanded="false">Appendix</a>.</p>
@@ -411,7 +422,7 @@ window.Quarto = {
 <p>In principle, one could treat <span class="math inline">\textrm{meta-}c</span> as a free parameter reflecting the Type I criterion of the generative model for Type II responses. But to ease comparisons between <span class="math inline">\textrm{meta-}d'</span> and <span class="math inline">d'</span>, in addition to comparisons across participants or experiments, it is instead customary to fix <span class="math inline">\textrm{meta-}c</span> to be similar in some respect to the Type I criterion (<span class="math inline">c</span>). <span class="citation" data-cites="maniscalco2014">Maniscalco and Lau (<a href="#ref-maniscalco2014" role="doc-biblioref">2014</a>)</span> advocate for two options in particular (<a href="#fig-metac" class="quarto-xref" aria-expanded="false">Figure&nbsp;3</a>). In the <span class="smallcaps">absolute</span> model, <span class="math inline">\textrm{meta-}c</span> is simply fixed to the Type I criterion (i.e., <span class="math inline">\textrm{meta-}c = c</span>). This is the parameterization used in our earlier Hmeta-d toolbox and is the default in the <code>hmetad</code> package <span class="citation" data-cites="fleming2017">(<a href="#ref-fleming2017" role="doc-biblioref">Fleming, 2017</a>)</span>. In the <span class="smallcaps">relative</span> model, <span class="math inline">\textrm{meta-}c</span> is fixed to be equal to the Type I criterion relative to the sensitivity (i.e., <span class="math inline">\frac{\textrm{meta-}c}{\textrm{meta-}d'} = \frac{c}{d'}</span>), which can be achieved by setting <span class="math inline">\textrm{meta-}c = \frac{\textrm{meta-}d'}{d'}c</span>. This is the parameterization used by <span class="citation" data-cites="maniscalco2014">Maniscalco and Lau (<a href="#ref-maniscalco2014" role="doc-biblioref">2014</a>)</span> and can be used in the <code>hmetad</code> package using the option <code>metac_absolute=FALSE</code>. Critically, <span class="citation" data-cites="rausch2023">Rausch et al. (<a href="#ref-rausch2023" role="doc-biblioref">2026</a>)</span> demonstrated that the choice between these two models is not arbitrary, as fitting data generated from the opposite generative model induces small but significant spurious dependencies of <span class="math inline">\textrm{meta-}d'</span> on other model parameters.</p>
 <div class="cell FigureWithoutNote" data-custom-style="FigureWithoutNote">
 <div class="cell-output-display">
-<div id="fig-metac" class="quarto-float quarto-figure quarto-figure-center" prefix="" data-fignum="3">
+<div id="fig-metac" class="quarto-float quarto-figure quarto-figure-center" data-fignum="3" prefix="">
 <figure class="quarto-float quarto-float-fig figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-fig" id="fig-metac-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="FigureTitle" data-custom-style="FigureTitle">
@@ -431,7 +442,7 @@ window.Quarto = {
 </section>
 <section id="parameterization-in-the-hmetad-package" class="level2">
 <h2 data-anchor-id="parameterization-in-the-hmetad-package">Parameterization in the <code>hmetad</code> package</h2>
-<p>As described above, the likelihood of the <span class="math inline">\textrm{meta-}d'</span> model is defined in terms of is parameters, <span class="math inline">\bm{\theta} = \{d', c, \textrm{meta-}d', \textrm{meta-}c, \textbf{meta-}\mathbf{c_2^0}, \textbf{meta-}\mathbf{c_2^1}\}</span>. To enable efficient model fitting, the <code>hmetad</code> package uses an alternative parameterization that derives these parameters from transformed variables.</p>
+<p>As described above, the likelihood of the <span class="math inline">\textrm{meta-}d'</span> model is defined in terms of is parameters, <span class="math inline">\bm{{\theta}} = \{d', c, \textrm{meta-}d', \textrm{meta-}c, \textbf{meta-}\mathbf{c_2^0}, \textbf{meta-}\mathbf{c_2^1}\}</span>. To enable efficient model fitting, the <code>hmetad</code> package uses an alternative parameterization that derives these parameters from transformed variables.</p>
 <p>First, instead of fitting <span class="math inline">\textrm{meta-}d'</span> directly, the <code>hmetad</code> package instead models the <span class="math inline">M</span>-ratio, <span class="math inline">M = \frac{\textrm{meta-}d'}{d'}</span>. To ensure that <span class="math inline">0 \le M \le \infty</span>, the <span class="math inline">M</span>-ratio is modeled with a logarithmic link function.<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a> In this parameterization, one can compute <span class="math inline">\textrm{meta-}d'</span> using the transformation <span class="math inline">\textrm{meta-}d' = Md'</span>.</p>
 <p>Second, in the original parameterization, the Type II criteria are ordinally constrained. Specifically, <span class="math inline">\textbf{meta-}\mathbf{c_2^0}</span> is constrained to be decreasing and below <span class="math inline">\textrm{meta-}c</span>, whereas <span class="math inline">\textbf{meta-}\mathbf{c_2^1}</span> is constrained to be increasing and above <span class="math inline">\textrm{meta-}c</span>: <span class="math display">\textrm{meta-}c_{2,K-1}^0 \le \ldots \le \textrm{meta-}c_{2,1}^0 \le\textrm{meta-}c \le \textrm{meta-}c_{2,1}^1 \le \ldots \le \textrm{meta-}c_{2,K-1}^1</span> Previous implementations of the model either used constrained optimization <span class="citation" data-cites="maniscalco2014">(<a href="#ref-maniscalco2014" role="doc-biblioref">Maniscalco &amp; Lau, 2014</a>)</span> or sorted the Type II criteria <span class="citation" data-cites="fleming2017">(<a href="#ref-fleming2017" role="doc-biblioref">Fleming, 2017</a>)</span> to meet this constraint. As a more flexible alternative, the <code>hmetad</code> package instead uses the positive ordered transform to model the between successive Type II criteria. Where <span class="math inline">K</span> is the number of confidence levels, <span class="math inline">K-1</span> is the number of confidence criteria per response, we define <span class="math inline">\delta\textrm{meta-}c_{2,k}^0</span> and <span class="math inline">\delta\textrm{meta-}c_{2,k}^1</span> as the distances between Type II criteria for <span class="math inline">R=0</span> and <span class="math inline">R=1</span>:</p>
 <p><span class="math display">
@@ -455,22 +466,22 @@ window.Quarto = {
 <p>As with the <span class="math inline">M</span>-ratio, the distances <span class="math inline">\delta\textrm{meta-}c_{2,k}^0</span> and <span class="math inline">\delta\textrm{meta-}c_{2,k}^1</span> are modeled with a logarithmic link function to ensure that they are positive.</p>
 <section id="including-predictors" class="level3">
 <h3 data-anchor-id="including-predictors">Including predictors</h3>
-<p>The primary benefit of the <code>hmetad</code> package is that it specifies the <span class="math inline">\textrm{meta-}d'</span> model as a generalized linear model, allowing users to specify model parameters as a linear function of observed variables. For instance, where <span class="math inline">\bm{X_\varphi}</span> and <span class="math inline">\beta_\varphi</span> are the design matrix and coefficient vector for each parameter <span class="math inline">\varphi</span>, the <code>hmetad</code> package uses the linear model: <span class="math display">
+<p>The primary benefit of the <code>hmetad</code> package is that it specifies the <span class="math inline">\textrm{meta-}d'</span> model as a generalized linear model, allowing users to specify model parameters as a linear function of observed variables. For instance, where <span class="math inline">\bm{{X_\varphi}}</span> and <span class="math inline">\beta_\varphi</span> are the design matrix and coefficient vector for each parameter <span class="math inline">\varphi</span>, the <code>hmetad</code> package uses the linear model: <span class="math display">
 \begin{align*}
-    \log(M) &amp;= \bm{X_M}\beta_M \\
-    d' &amp;= \bm{X_{d'}}\beta_{d'} \\
-    c &amp;= \bm{X_c}\beta_c \\
-    \log(\delta\textrm{meta-}c_{2,k}^0) &amp;= \bm{X_{\delta\textbf{meta-}\mathbf{c_{2,k}^0}}}\beta_{\delta\textrm{meta-}c_{2,k}^0} \\
-    \log(\delta\textrm{meta-}c_{2,k}^1) &amp;= \bm{X_{\delta\textbf{meta-}\mathbf{c_{2,k}^1}}}\beta_{\delta\textrm{meta-}c_{2,k}^1}
+    \log(M) &amp;= \bm{{X_M}}\beta_M \\
+    d' &amp;= \bm{{X_{d'}}}\beta_{d'} \\
+    c &amp;= \bm{{X_c}}\beta_c \\
+    \log(\delta\textrm{meta-}c_{2,k}^0) &amp;= \bm{{X_{\delta\textbf{meta-}\mathbf{c_{2,k}^0}}}}\beta_{\delta\textrm{meta-}c_{2,k}^0} \\
+    \log(\delta\textrm{meta-}c_{2,k}^1) &amp;= \bm{{X_{\delta\textbf{meta-}\mathbf{c_{2,k}^1}}}}\beta_{\delta\textrm{meta-}c_{2,k}^1}
 \end{align*}
 </span></p>
-<p>Importantly, the <code>hmetad</code> package allows for the design matrices to differ for each model parameter. As with any other <code>brms</code> family, it is also possible to include multilevel (or hierarchical) structure <span class="citation" data-cites="buerkner2018">(<a href="#ref-buerkner2018" role="doc-biblioref">Bürkner, 2018</a>)</span>. Where <span class="math inline">\bm{Z_\varphi}</span> and <span class="math inline">\gamma_\varphi</span> are the group-level design matrix and coefficient vector for each parameter <span class="math inline">\varphi</span>: <span class="math display">
+<p>Importantly, the <code>hmetad</code> package allows for the design matrices to differ for each model parameter. As with any other <code>brms</code> family, it is also possible to include multilevel (or hierarchical) structure <span class="citation" data-cites="buerkner2018">(<a href="#ref-buerkner2018" role="doc-biblioref">Bürkner, 2018</a>)</span>. Where <span class="math inline">\bm{{Z_\varphi}}</span> and <span class="math inline">\gamma_\varphi</span> are the group-level design matrix and coefficient vector for each parameter <span class="math inline">\varphi</span>: <span class="math display">
 \begin{align*}
-    \log(M) &amp;= \bm{X_M}\beta_M \;+\; \bm{Z_M}\gamma_M \\
-    d' &amp;= \bm{X_{d'}}\beta_{d'} \;+\; \bm{Z_{d'}}\gamma_{d'} \\
-    c &amp;= \bm{X_c}\beta_c \;+\; \bm{Z_c}\gamma_c \\
-    \log(\delta\textrm{meta-}c_{2,k}^0) &amp;= \bm{X_{\delta\textbf{meta-}\mathbf{c_{2,k}^0}}}\beta_{\delta\textrm{meta-}c_{2,k}^0} \;+\; \bm{Z_{\delta\textbf{meta-}\mathbf{c_{2,k}^0}}}\gamma_{\delta\textrm{meta-}c_{2,k}^0} \\
-    \log(\delta\textrm{meta-}c_{2,k}^1) &amp;= \bm{X_{\delta\textbf{meta-}\mathbf{c_{2,k}^1}}}\beta_{\delta\textrm{meta-}c_{2,k}^1} \;+\; \bm{Z_{\delta\textbf{meta-}\mathbf{c_{2,k}^1}}}\gamma_{\delta\textrm{meta-}c_{2,k}^1}
+    \log(M) &amp;= \bm{{X_M}}\beta_M \;+\; \bm{{Z_M}}\gamma_M \\
+    d' &amp;= \bm{{X_{d'}}}\beta_{d'} \;+\; \bm{{Z_{d'}}}\gamma_{d'} \\
+    c &amp;= \bm{{X_c}}\beta_c \;+\; \bm{{Z_c}}\gamma_c \\
+    \log(\delta\textrm{meta-}c_{2,k}^0) &amp;= \bm{{X_{\delta\textbf{meta-}\mathbf{c_{2,k}^0}}}}\beta_{\delta\textrm{meta-}c_{2,k}^0} \;+\; \bm{{Z_{\delta\textbf{meta-}\mathbf{c_{2,k}^0}}}}\gamma_{\delta\textrm{meta-}c_{2,k}^0} \\
+    \log(\delta\textrm{meta-}c_{2,k}^1) &amp;= \bm{{X_{\delta\textbf{meta-}\mathbf{c_{2,k}^1}}}}\beta_{\delta\textrm{meta-}c_{2,k}^1} \;+\; \bm{{Z_{\delta\textbf{meta-}\mathbf{c_{2,k}^1}}}}\gamma_{\delta\textrm{meta-}c_{2,k}^1}
 \end{align*}
 </span></p>
 <p>Although a full description of all of the different kinds of predictors allowed in <code>brms</code> is outside the scope of this article, <code>brms</code> also allows for non-linear terms, monotonic predictors, autocorrelation terms, and predictors with measurement error <span class="citation" data-cites="buerkner2017 buerkner2018 buerkner2020">(<a href="#ref-buerkner2017" role="doc-biblioref">Bürkner, 2017</a>, <a href="#ref-buerkner2018" role="doc-biblioref">2018</a>; <a href="#ref-buerkner2020" role="doc-biblioref">Bürkner &amp; Charpentier, 2020</a>)</span>.</p>
@@ -735,7 +746,7 @@ Parameters: mu, dprime, c, metac2zero1diff, metac2zero2diff,
 <p>Critically, it is necessary to tune the prior for the Type II criteria through iterative refinement and visualization, because models with different number of confidence criteria require different parameter values to produce roughly uniform confidence responding. As an example, if we use the same prior for a hypothetical dataset with only two confidence levels, the resulting prior predictions strongly favor high-confidence responding (<a href="#fig-type2-prior" class="quarto-xref" aria-expanded="false">Figure&nbsp;4</a>C). In this scenario, it would be sensible to increase the prior mean of the confidence criteria until the prior predictions more closely resembled our expectations.</p>
 <div class="cell FigureWithNote" data-apa-note="Points and intervals indicate prior medians and 95% credible intervals. Smoothed bars depict complementary cumulative distribution function of prior distributions." data-custom-style="FigureWithNote">
 <div class="cell-output-display">
-<div id="fig-type2-prior" class="quarto-float quarto-figure quarto-figure-center" prefix="" data-fignum="4">
+<div id="fig-type2-prior" class="quarto-float quarto-figure quarto-figure-center" data-fignum="4" prefix="">
 <figure class="quarto-float quarto-float-fig figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-fig" id="fig-type2-prior-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="FigureTitle" data-custom-style="FigureTitle">
@@ -899,7 +910,7 @@ http://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup</code><
 </div>
 <div class="cell FigureWithNote" data-apa-note="Bars depict empirical probabilities and points and intervals depict posterior medians and 95% credible intervals." data-custom-style="FigureWithNote">
 <div class="cell-output-display">
-<div id="fig-epred" class="quarto-float quarto-figure quarto-figure-center" prefix="" data-fignum="5">
+<div id="fig-epred" class="quarto-float quarto-figure quarto-figure-center" data-fignum="5" prefix="">
 <figure class="quarto-float quarto-float-fig figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-fig" id="fig-epred-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="FigureTitle" data-custom-style="FigureTitle">
@@ -943,7 +954,7 @@ http://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup</code><
 </div>
 <div class="cell FigureWithNote" data-apa-note="Bars depict complementary cumulative posterior probabilities and points depict empirical probabilities." data-custom-style="FigureWithNote">
 <div class="cell-output-display">
-<div id="fig-roc2" class="quarto-float quarto-figure quarto-figure-center" prefix="" data-fignum="6">
+<div id="fig-roc2" class="quarto-float quarto-figure quarto-figure-center" data-fignum="6" prefix="">
 <figure class="quarto-float quarto-float-fig figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-fig" id="fig-roc2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="FigureTitle" data-custom-style="FigureTitle">
@@ -1034,7 +1045,7 @@ Regression Coefficients:
 </div>
 <div class="cell FigureWithoutNote" data-custom-style="FigureWithoutNote">
 <div class="cell-output-display">
-<div id="fig-mratio" class="quarto-float quarto-figure quarto-figure-center" prefix="" data-fignum="7">
+<div id="fig-mratio" class="quarto-float quarto-figure quarto-figure-center" data-fignum="7" prefix="">
 <figure class="quarto-float quarto-float-fig figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-fig" id="fig-mratio-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="FigureTitle" data-custom-style="FigureTitle">
@@ -1079,7 +1090,7 @@ Regression Coefficients:
 </div>
 <div class="cell FigureWithNote" data-apa-note="Lines indicate posterior medians and ribbons indicate 95% posterior quantiles. Points indicate posterior medians of participant-level estimates." data-custom-style="FigureWithNote">
 <div class="cell-output-display">
-<div id="fig-linpred-mh" class="quarto-float quarto-figure quarto-figure-center" prefix="" data-fignum="8">
+<div id="fig-linpred-mh" class="quarto-float quarto-figure quarto-figure-center" data-fignum="8" prefix="">
 <figure class="quarto-float quarto-float-fig figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-fig" id="fig-linpred-mh-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="FigureTitle" data-custom-style="FigureTitle">
@@ -1128,7 +1139,7 @@ Regression Coefficients:
 </div>
 <div class="cell FigureWithNote" data-apa-note="Lines indicate posterior medians and ribbons indicate 95% posterior quantiles. Points indicate posterior medians of participant-level estimates." data-custom-style="FigureWithNote">
 <div class="cell-output-display">
-<div id="fig-bias" class="quarto-float quarto-figure quarto-figure-center" prefix="" data-fignum="9">
+<div id="fig-bias" class="quarto-float quarto-figure quarto-figure-center" data-fignum="9" prefix="">
 <figure class="quarto-float quarto-float-fig figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-fig" id="fig-bias-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="FigureTitle" data-custom-style="FigureTitle">
@@ -1348,7 +1359,7 @@ c_anxious_depression                  -0.03      0.02    -0.06     0.00 1.00</co
 </div>
 <div class="cell FigureWithNote" data-apa-note="Lines indicate posterior medians and ribbons indicate 95% posterior quantiles. Points indicate posterior medians of participant-level estimates." data-custom-style="FigureWithNote">
 <div class="cell-output-display">
-<div id="fig-bias-mh" class="quarto-float quarto-figure quarto-figure-center" prefix="" data-fignum="10">
+<div id="fig-bias-mh" class="quarto-float quarto-figure quarto-figure-center" data-fignum="10" prefix="">
 <figure class="quarto-float quarto-float-fig figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-fig" id="fig-bias-mh-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="FigureTitle" data-custom-style="FigureTitle">
@@ -1391,6 +1402,37 @@ c_anxious_depression                  -0.03      0.02    -0.06     0.00 1.00</co
 <h1>Discussion</h1>
 <p>Although the field has made significant progress, operationalization, measurement, and modeling are still key obstacles in metacognition research. The <span class="math inline">\textrm{meta-}d'</span> model addresses this challenge by independently estimating participants’ sensitivity to the stimulus when making a response and when rating confidence <span class="citation" data-cites="maniscalco2012 maniscalco2014">(<a href="#ref-maniscalco2012" role="doc-biblioref">Maniscalco &amp; Lau, 2012</a>, <a href="#ref-maniscalco2014" role="doc-biblioref">2014</a>)</span>. However, despite advances in Bayesian estimation techniques <span class="citation" data-cites="fleming2017">(<a href="#ref-fleming2017" role="doc-biblioref">Fleming, 2017</a>)</span>, the practical details of model fitting, visualization, and significance testing have continued to complicate analysis of confidence data.</p>
 <p>Here, we show how the <code>hmetad</code> package allows users to fit the <span class="math inline">\textrm{meta-}d'</span> model in a flexible, reproducible, and principled manner. As an extension of the popular <code>brms</code> package in R, the <code>hmetad</code> package encourages users to set weakly informative priors, validate model fit, and interpret model estimates within a standard Bayesian workflow <span class="citation" data-cites="gelman2026">(<a href="#ref-gelman2026" role="doc-biblioref"><span class="nocase">Gelman et al.</span>, 2026</a>)</span>. Besides helping to overcome limitations in the statistical power and reliability of metacognitive efficiency and bias estimates <span class="citation" data-cites="fleming2017 rahnev2025">(<a href="#ref-fleming2017" role="doc-biblioref">Fleming, 2017</a>; <a href="#ref-rahnev2025" role="doc-biblioref">Rahnev, 2025</a>)</span>, this package expands the scope of the model to include trial-level effects, non-linear terms, crossed random effects, correlations among participant-level estimates of Type I and Type II parameters, joint modeling of confidence and other measures, mediation analyses, and many other designs. Although we have not discussed them here, it also enables a broader set of practices in statistical modeling including simulation-based calibration <span class="citation" data-cites="modrak2025 talts2018">(<a href="#ref-modrak2025" role="doc-biblioref">Modrák et al., 2025</a>; <a href="#ref-talts2018" role="doc-biblioref">Talts et al., 2018</a>)</span>, model comparison <span class="citation" data-cites="vehtari2017 sivula2025">(<a href="#ref-sivula2025" role="doc-biblioref">Sivula et al., 2025</a>; <a href="#ref-vehtari2017" role="doc-biblioref">Vehtari et al., 2017</a>)</span>, and prior sensitivity analysis <span class="citation" data-cites="kallioinen2023 kallioinen2026">(<a href="#ref-kallioinen2023" role="doc-biblioref">Kallioinen et al., 2023</a>, <a href="#ref-kallioinen2026" role="doc-biblioref">2026</a>)</span>. Overall, the <code>hmetad</code> supports analytical practices that address the growing complexity of research questions in metacognitive science.</p>
+</section>
+<section id="declarations" class="level1">
+<h1>Declarations</h1>
+<section id="funding" class="level2">
+<h2 data-anchor-id="funding">Funding</h2>
+<p>SMF is a CIFAR Fellow in the Brain, Mind and Consciousness Program, and funded by UK Research and Innovation (UKRI) under the UK government’s Horizon Europe funding guarantee (selected as ERC Consolidator, grant number 101043666).</p>
+</section>
+<section id="conflicts-of-interest" class="level2">
+<h2 data-anchor-id="conflicts-of-interest">Conflicts of interest</h2>
+<p>The authors have no conflicts of interest to declare.</p>
+</section>
+<section id="ethics-approval" class="level2">
+<h2 data-anchor-id="ethics-approval">Ethics approval</h2>
+<p>N/A</p>
+</section>
+<section id="consent-to-participate" class="level2">
+<h2 data-anchor-id="consent-to-participate">Consent to participate</h2>
+<p>N/A</p>
+</section>
+<section id="consent-for-publication" class="level2">
+<h2 data-anchor-id="consent-for-publication">Consent for publication</h2>
+<p>N/A</p>
+</section>
+<section id="availability-of-data-and-materials" class="level2">
+<h2 data-anchor-id="availability-of-data-and-materials">Availability of data and materials</h2>
+<p>All data and materials are available at <a href="https://github.com/metacoglab/hmetad_tutorial" class="uri">https://github.com/metacoglab/hmetad_tutorial</a>.</p>
+</section>
+<section id="code-availability" class="level2">
+<h2 data-anchor-id="code-availability">Code availability</h2>
+<p>All code for this manuscript is available at <a href="https://metacoglab.github.io/hmetad_tutorial" class="uri">https://metacoglab.github.io/hmetad_tutorial</a>. The <code>hmetad</code> package is openly stored in the CRAN repository (<a href="https://cran.r-project.org/package=hmetad" class="uri">https://cran.r-project.org/package=hmetad</a>) and on GitHub (<a href="https://github.com/metacoglab/hmetad" class="uri">https://github.com/metacoglab/hmetad</a>).</p>
+</section>
 </section>
 <section id="references" class="level1">
 <h1>References</h1>
@@ -1537,7 +1579,7 @@ Yarkoni, T. (2020). The generalizability crisis. <em>Behavioral and Brain Scienc
 <p>Computation with raw probabilities often leads to numerical issues like underflow, as well as potentially problematic posterior geometry. To reduce both issues, the probabilistic programming language Stan (which the <code>hmetad</code> pacakge is built on) performs computations and evaluates gradients on the logarithmic scale. For the categorical likelihood:</p>
 <p><span class="math display">
 \begin{align*}
-    \ell(\bm{\theta} \;\vert\; S=\bm{s},R=\bm{r},C=\bm{c}) &amp;= \log\mathcal{L}(\bm{\theta} \;\vert\; S=\bm{s},R=\bm{r},C=\bm{c}) \\
+    \ell(\bm{{\theta}} \;\vert\; S=\bm{{s}},R=\bm{{r}},C=\bm{{c}}) &amp;= \log\mathcal{L}(\bm{{\theta}} \;\vert\; S=\bm{{s}},R=\bm{{r}},C=\bm{{c}}) \\
     &amp;= \log\prod_{n=1}^N P(R=r_n, C=c_n \;\vert\; S=s_n) \\
     &amp;= \sum_{n=1}^N \log P(R=r_n, C=c_n \;\vert\; S=s_n)
 \end{align*}
@@ -1545,7 +1587,7 @@ Yarkoni, T. (2020). The generalizability crisis. <em>Behavioral and Brain Scienc
 <p>And for the multinomial likelihood:</p>
 <p><span class="math display">
 \begin{align*}
-    \ell(\bm{\theta} \;\vert\; \bm{N}) &amp;= \log \mathcal{L}(\bm{\theta} \;\vert\; \bm{N}) \\
+    \ell(\bm{{\theta}} \;\vert\; \bm{{N}}) &amp;= \log \mathcal{L}(\bm{{\theta}} \;\vert\; \bm{{N}}) \\
     &amp;\propto \log \prod_{s,r,c} P(R=r, C=c \;\vert\; S=s)^{N_{s,r,c}} \\
     &amp;= \sum_{s,r,c} N_{s,r,c} \log P(R=r, C=c \;\vert\; S=s)
 \end{align*}
@@ -1598,10 +1640,10 @@ Yarkoni, T. (2020). The generalizability crisis. <em>Behavioral and Brain Scienc
     \end{cases}
 \end{align*}
 </span></p>
-<p>Here, each term is the logarithm of either the cumulative distribution function, the complementary cumulative distribution function, or the difference between cumulative distribution functions of <span class="math inline">\mathcal{D}</span>. Stan has built-in functions for the logarithm of the (complementary) cumulative distribution function of most distributions (e.g., the standard normal distribution). So, all that is needed is to compute the difference on the log scale. The <code>hmetad</code> function accomplishes this through the Stan function <span class="math inline">\texttt{log\_diff\_exp}(x,y) = \log(e^x - e^y)</span>, in particular:</p>
+<p>Here, each term is the logarithm of either the cumulative distribution function, the complementary cumulative distribution function, or the difference between cumulative distribution functions of <span class="math inline">\mathcal{D}</span>. Stan has built-in functions for the logarithm of the (complementary) cumulative distribution function of most distributions (e.g., the standard normal distribution). So, all that is needed is to compute the difference on the log scale. The <code>hmetad</code> package accomplishes this through the Stan function <span class="math inline">\texttt{log\_diff\_exp}(x,y) = \log(e^x - e^y)</span>, in particular:</p>
 <p><span class="math display">
 \begin{align*}
-    \log\left[F_\mathcal{D}(c_1) - F_\mathcal{D}(c_2) \right] = \texttt{log\_diff\_exp}\!\left(\log F_\mathcal{D}(c_1), \log F_\mathcal{D}(c_2)\right)
+    \log\left[F_{\mathcal{D}}(c_1) - F_{\mathcal{D}}(c_2) \right] = \texttt{log\_diff\_exp}\!\left(\log F_{\mathcal{D}}(c_1), \log F_{\mathcal{D}}(c_2)\right)
 \end{align*}
 </span></p>
 <p>Because of this formulation, the <code>hmetad</code> package supports any unbounded Thurstonian distribution (i.e., any distribution with a location parameter and fixed scale) given a definition of its log (complementary) cumulative distribution function in both R and Stan.</p>
