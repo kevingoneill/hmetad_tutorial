@@ -12,11 +12,10 @@ format:
     fig-format: svg
     fig-width: 10
     fig-height: 4
-    fig-dpi: 600
-#    tikz:
-#      embed: inline
+    fig-dpi: 600        
   apaquarto-pdf:
-    documentmode: doc
+#    documentmode: man   # use this format for manuscript submission
+    documentmode: doc   # use this format for publishing
     fontsize: 10pt
     keep-tex: false
     fig-format: pdf

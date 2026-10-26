@@ -1,2 +1,12 @@
 /.quarto/
 **/*.quarto_ipynb
+**/index_files/
+**/index_cache/
+**/*.log
+**/*.aux
+index.docx
+index.html
+index.tex
+index.pdf
+
+RouaultSeowGillanFleming/
